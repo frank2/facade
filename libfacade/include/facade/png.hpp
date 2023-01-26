@@ -709,19 +709,19 @@ namespace png
       void filter();
 
       std::vector<std::uint8_t> to_file() const;
-      void save(std::string filename) const;
+      void save(const std::string &filename) const;
 
       bool has_text() const;
-      Text &add_text(std::string keyword, std::string text);
+      Text &add_text(const std::string &keyword, const std::string &text);
       void remove_text(const Text &text);
-      void remove_text(std::string keyword, std::string text);
-      std::vector<Text> get_text(std::string keyword) const;
+      void remove_text(const std::string &keyword, const std::string &text);
+      std::vector<Text> get_text(const std::string &keyword) const;
 
       bool has_ztext() const;
-      ZText &add_ztext(std::string keyword, std::string text);
+      ZText &add_ztext(const std::string &keyword, const std::string &text);
       void remove_ztext(const ZText &ztext);
-      void remove_ztext(std::string keyword, std::string text);
-      std::vector<ZText> get_ztext(std::string keyword) const;
+      void remove_ztext(const std::string &keyword, const std::string &text);
+      std::vector<ZText> get_ztext(const std::string &keyword) const;
    };
 }}
 

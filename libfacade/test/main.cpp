@@ -169,6 +169,64 @@ test_embedding()
 }
 
 int
+test_payload()
+{
+   INIT();
+
+   PNGPayload base_payload;
+
+   ASSERT_SUCCESS(base_payload = PNGPayload("../test/art.png"));
+
+   std::basic_ifstream<std::uint8_t> test_data_fp("../test/test.png", std::ios::binary);
+   auto test_data = std::vector<std::uint8_t>();
+   test_data.insert(test_data.begin(),
+                    std::istreambuf_iterator<std::uint8_t>(test_data_fp),
+                    std::istreambuf_iterator<std::uint8_t>());
+   
+   auto trailing_payload = base_payload;
+   ASSERT_SUCCESS(trailing_payload.set_trailing_data(test_data));
+   ASSERT_SUCCESS(trailing_payload.save("art.trailing.png"));
+
+   PNGPayload trailing_parsed;
+   ASSERT_SUCCESS(trailing_parsed = PNGPayload("art.trailing.png"));
+   ASSERT(trailing_parsed.get_trailing_data() == test_data);
+
+   auto text_payload = base_payload;
+   ASSERT_SUCCESS(text_payload.add_text_payload("tEXt test", test_data));
+   ASSERT_SUCCESS(text_payload.save("art.text.png"));
+
+   PNGPayload text_parsed;
+   ASSERT_SUCCESS(text_parsed = PNGPayload("art.text.png"));
+
+   std::vector<std::vector<std::uint8_t>> text_payloads;
+   ASSERT_SUCCESS(text_payloads = text_parsed.extract_text_payloads("tEXt test"));
+   ASSERT(text_payloads.size() == 1);
+
+   if (text_payloads.size() == 1)
+   {
+      ASSERT(text_payloads[0] == test_data);
+   }
+
+   auto ztext_payload = base_payload;
+   ASSERT_SUCCESS(ztext_payload.add_ztext_payload("zTXt test", test_data));
+   ASSERT_SUCCESS(ztext_payload.save("art.ztext.png"));
+
+   PNGPayload ztext_parsed;
+   ASSERT_SUCCESS(ztext_parsed = PNGPayload("art.ztext.png"));
+
+   std::vector<std::vector<std::uint8_t>> ztext_payloads;
+   ASSERT_SUCCESS(ztext_payloads = ztext_parsed.extract_ztext_payloads("zTXt test"));
+   ASSERT(ztext_payloads.size() == 1);
+
+   if (ztext_payloads.size() == 1)
+   {
+      ASSERT(ztext_payloads[0] == test_data);
+   }
+
+   COMPLETE();
+}
+
+int
 main
 (int argc, char *argv[])
 {
@@ -179,6 +237,9 @@ main
 
    LOG_INFO("Testing embedding data into PNG objects.");
    PROCESS_RESULT(test_embedding);
+
+   LOG_INFO("Testing binary payloads in PNG images.");
+   PROCESS_RESULT(test_payload);
 
    COMPLETE();
 }

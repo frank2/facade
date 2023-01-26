@@ -267,5 +267,33 @@ namespace exception
    public:
       TextNotFound() : Exception("Text not found: the given text was not found in the PNG image.") {}
    };
+
+   class InvalidBase64Character : public Exception
+   {
+   public:
+      char c;
+
+      InvalidBase64Character(char c) : c(c), Exception() {
+         std::stringstream stream;
+
+         stream << "Invalid Base64 character: the given character, '" << c << "', is not a valid Base64 character.";
+
+         this->error = stream.str();
+      }
+   };
+
+   class InvalidBase64String : public Exception
+   {
+   public:
+      std::string string;
+
+      InvalidBase64String(const std::string &string) : string(string), Exception() {
+         std::stringstream stream;
+
+         stream << "Invalid Base64 string: the given string is not a valid Base64 string: " << string;
+
+         this->error = stream.str();
+      }
+   };
 }}
 #endif

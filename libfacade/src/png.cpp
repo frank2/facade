@@ -1427,9 +1427,6 @@ void Image::filter() {
             ? std::optional<AlphaTrueColorScanline8Bit>(std::nullopt)
             : std::get<AlphaTrueColorScanline8Bit>(current_data[i-1]);
          new_data[i] = std::get<AlphaTrueColorScanline8Bit>(new_data[i]).filter(previous);
-         if (i == 17 || i == 18 || i == 19 || i == 20 || i == 27 || i == 28 || i == 29) {
-            std::cout << "Row " << i << ": " << static_cast<int>(std::get<AlphaTrueColorScanline8Bit>(new_data[i]).filter_type()) << std::endl;
-         }
          break;
       }
       case PixelEnum::ALPHA_TRUE_COLOR_PIXEL_16BIT:
@@ -1492,7 +1489,7 @@ std::vector<std::uint8_t> Image::to_file() const
    return file_data;
 }
 
-void Image::save(std::string filename) const
+void Image::save(const std::string &filename) const
 {
    auto data = this->to_file();
    
@@ -1507,7 +1504,7 @@ bool Image::has_text() const {
    return this->chunk_map.find("tEXt") != this->chunk_map.end();
 }
 
-Text &Image::add_text(std::string keyword, std::string text) {
+Text &Image::add_text(const std::string &keyword, const std::string &text) {
    this->chunk_map["tEXt"].push_back(Text(keyword, text).as_chunk_vec());
 
    return this->chunk_map["tEXt"].back().upcast<Text>();
@@ -1526,11 +1523,11 @@ void Image::remove_text(const Text &text) {
    throw exception::TextNotFound();
 }
 
-void Image::remove_text(std::string keyword, std::string text) {
+void Image::remove_text(const std::string &keyword, const std::string &text) {
    this->remove_text(Text(keyword, text));
 }
 
-std::vector<Text> Image::get_text(std::string keyword) const {
+std::vector<Text> Image::get_text(const std::string &keyword) const {
    std::vector<Text> result;
    
    for (auto &text : this->chunk_map.at("tEXt"))
@@ -1548,7 +1545,7 @@ bool Image::has_ztext() const {
    return this->chunk_map.find("zTXt") != this->chunk_map.end();
 }
 
-ZText &Image::add_ztext(std::string keyword, std::string text) {
+ZText &Image::add_ztext(const std::string &keyword, const std::string &text) {
    this->chunk_map["zTXt"].push_back(ZText(keyword, text).as_chunk_vec());
 
    return this->chunk_map["zTXt"].back().upcast<ZText>();
@@ -1567,11 +1564,11 @@ void Image::remove_ztext(const ZText &text) {
    throw exception::TextNotFound();
 }
 
-void Image::remove_ztext(std::string keyword, std::string text) {
+void Image::remove_ztext(const std::string &keyword, const std::string &text) {
    this->remove_ztext(ZText(keyword, text));
 }
 
-std::vector<ZText> Image::get_ztext(std::string keyword) const {
+std::vector<ZText> Image::get_ztext(const std::string &keyword) const {
    std::vector<ZText> result;
    
    for (auto &text : this->chunk_map.at("zTXt"))

@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cctype>
+#include <string>
 #include <vector>
 
 #include <zlib.h>
@@ -77,6 +79,10 @@ namespace facade
       0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
    };
 
+   const std::string BASE64_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz"
+      "0123456789+/";
+
    std::uint16_t endian_swap_16(std::uint16_t value);
    std::uint32_t endian_swap_32(std::uint32_t value);
    std::uint32_t crc32(const void *ptr, std::size_t size, std::uint32_t init_crc);
@@ -85,6 +91,11 @@ namespace facade
    std::vector<std::uint8_t> compress(const std::vector<std::uint8_t> &vec, int level);
    std::vector<std::uint8_t> decompress(const void *ptr, std::size_t size);
    std::vector<std::uint8_t> decompress(const std::vector<std::uint8_t> &vec);
+
+   bool is_base64_string(const std::string &base64);
+   std::string base64_encode(const void *ptr, std::size_t size);
+   std::string base64_encode(const std::vector<std::uint8_t> &data);
+   std::vector<std::uint8_t> base64_decode(const std::string &data);
 }
 
 #endif
