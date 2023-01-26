@@ -1,0 +1,10 @@
+^C:\CYGWIN64\HOME\PURPLE\LOCAL\DOC\GIT\GITHUB\FRANK2\FACADE\LIBFACADE\LIB\ZLIB-1.2.13\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13 -BC:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build --check-stamp-file C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

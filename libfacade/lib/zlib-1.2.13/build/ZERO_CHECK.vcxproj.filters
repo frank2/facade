@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\build\CMakeFiles\7b1b12353063e226854b1069eaf049a5\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{C46D4F0F-BD5D-3EF1-BEFC-55AE99B55521}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

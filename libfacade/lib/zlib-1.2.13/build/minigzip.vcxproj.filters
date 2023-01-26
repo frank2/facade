@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\test\minigzip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2FD1DB73-63BF-3154-8948-C81F0518A184}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

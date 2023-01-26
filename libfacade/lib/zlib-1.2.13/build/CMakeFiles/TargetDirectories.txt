@@ -1,0 +1,8 @@
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/zlib.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/zlibstatic.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/example.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/minigzip.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/RUN_TESTS.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/INSTALL.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/ALL_BUILD.dir
+C:/cygwin64/home/purple/local/doc/git/github/frank2/facade/libfacade/lib/zlib-1.2.13/build/CMakeFiles/ZERO_CHECK.dir

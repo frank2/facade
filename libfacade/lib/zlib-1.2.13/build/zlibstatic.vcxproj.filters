@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\adler32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\compress.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\crc32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\deflate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\gzclose.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\gzlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\gzread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\gzwrite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inflate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\infback.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inftrees.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inffast.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\trees.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\uncompr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\zutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\build\zconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\zlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\crc32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\deflate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\gzguts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inffast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inffixed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inflate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\inftrees.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\trees.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\zutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\cygwin64\home\purple\local\doc\git\github\frank2\facade\libfacade\lib\zlib-1.2.13\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{50BA0E05-9CD5-32B0-9093-30279EE7FAA4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2FD1DB73-63BF-3154-8948-C81F0518A184}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
