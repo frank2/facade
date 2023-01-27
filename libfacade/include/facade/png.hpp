@@ -235,14 +235,14 @@ namespace png
            _green(other._green),
            _blue(other._blue) {}
          
-      Sample &red();
-      const Sample &red() const;
+      Sample &red() { return this->_red; }
+      const Sample &red() const { return this->_red; }
       
-      Sample &green();
-      const Sample &green() const;
+      Sample &green() { return this->_green; }
+      const Sample &green() const { return this->_green; }
 
-      Sample &blue();
-      const Sample &blue() const;
+      Sample &blue() { return this->_blue; }
+      const Sample &blue() const { return this->_blue;}
    };
    UNPACK()
 
@@ -289,8 +289,8 @@ namespace png
       AlphaGrayscalePixel(Sample value, Sample alpha) : _alpha(alpha), GrayscalePixel<_Base>(value) {}
       AlphaGrayscalePixel(const AlphaGrayscalePixel &other) : _alpha(other._alpha), GrayscalePixel<_Base>(other) {}
 
-      Sample &alpha();
-      const Sample &alpha() const;
+      Sample &alpha() { return this->_alpha; }
+      const Sample &alpha() const { return this->_alpha; }
    };
    UNPACK()
 
@@ -315,8 +315,8 @@ namespace png
          : _alpha(other._alpha),
            TrueColorPixel<_Sample>(other) {}
       
-      _Sample &alpha();
-      const _Sample &alpha() const;
+      _Sample &alpha() { return this->_alpha; }
+      const _Sample &alpha() const { return this->_alpha; }
    };
    UNPACK()
 
@@ -405,7 +405,9 @@ namespace png
             auto value = std::get<PixelType>(pixel).value();
             this->_data.bits = (bits & mask) | (value << shift);
          }
-         else { std::memcpy(&this->_data.bytes[0], &pixel, PixelType::Bits/8); }
+         else {
+            std::memcpy(&this->_data.bytes[0], &pixel, PixelType::Bits/8);
+         }
       }
    };
 

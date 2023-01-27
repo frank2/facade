@@ -223,6 +223,26 @@ test_payload()
       ASSERT(ztext_payloads[0] == test_data);
    }
 
+   auto stego_payload = base_payload;
+   PNGPayload stego_data;
+   ASSERT_SUCCESS(stego_data = stego_payload.create_stego_payload(test_data));
+   ASSERT_SUCCESS(stego_data.save("art.stego.png"));
+
+   PNGPayload stego_parsed;
+   ASSERT_SUCCESS(stego_parsed = PNGPayload("art.stego.png"));
+   ASSERT_SUCCESS(stego_parsed.load());
+   ASSERT(stego_parsed.has_stego_payload());
+
+   std::vector<std::uint8_t> stego_extract;
+   ASSERT_SUCCESS(stego_extract = stego_parsed.extract_stego_payload());
+   ASSERT(stego_extract == test_data);
+
+   //PNGPayload stego_download;
+   //ASSERT_SUCCESS(stego_download = PNGPayload("../test/art.stego.png"));
+   //ASSERT_SUCCESS(stego_download.load());
+   //ASSERT_SUCCESS(stego_extract = stego_download.extract_stego_payload());
+   //ASSERT(stego_extract == test_data);
+
    COMPLETE();
 }
 

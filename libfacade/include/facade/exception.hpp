@@ -295,5 +295,41 @@ namespace exception
          this->error = stream.str();
       }
    };
+
+   class UnsupportedPixelType : public Exception
+   {
+   public:
+      std::size_t pixel_type;
+
+      UnsupportedPixelType(std::size_t pixel_type) : pixel_type(pixel_type), Exception() {
+         std::stringstream stream;
+
+         stream << "Unsupported pixel type: the given pixel-type value, " << pixel_type << ", is unsupported for the given operation.";
+
+         this->error = stream.str();
+      }
+   };
+
+   class ImageTooSmall : public Exception
+   {
+   public:
+      std::size_t given;
+      std::size_t needed;
+
+      ImageTooSmall(std::size_t given, std::size_t needed) : given(given), needed(needed), Exception() {
+         std::stringstream stream;
+
+         stream << "Image too small: the image wasn't large enough to support the operation. The image can hold "
+                << given << " bytes of data, but needed at least " << needed;
+
+         this->error = stream.str();
+      }
+   };
+
+   class NoStegoData : public Exception
+   {
+   public:
+      NoStegoData() : Exception("No stego data: there is no steganographic data within the image.") {}
+   };
 }}
 #endif

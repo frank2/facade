@@ -171,56 +171,6 @@ ChunkVec ChunkPtr::to_chunk_vec() const {
    return ChunkVec(this->tag(), this->data());
 }
 
-template <typename _Sample>
-_Sample &TrueColorPixel<_Sample>::red() {
-   return this->_red;
-}
-
-template <typename _Sample>
-const _Sample &TrueColorPixel<_Sample>::red() const {
-   return this->_red;
-}
-
-template <typename _Sample>
-_Sample &TrueColorPixel<_Sample>::green() {
-   return this->_green;
-}
-
-template <typename _Sample>
-const _Sample &TrueColorPixel<_Sample>::green() const {
-   return this->_green;
-}
-
-template <typename _Sample>
-_Sample &TrueColorPixel<_Sample>::blue() {
-   return this->_blue;
-}
-
-template <typename _Sample>
-const _Sample &TrueColorPixel<_Sample>::blue() const {
-   return this->_blue;
-}
-
-template <typename _Base>
-Sample<_Base> &AlphaGrayscalePixel<_Base>::alpha() {
-   return this->_alpha;
-}
-
-template <typename _Base>
-const Sample<_Base> &AlphaGrayscalePixel<_Base>::alpha() const {
-   return this->_alpha;
-}
-
-template <typename _Sample>
-_Sample &AlphaTrueColorPixel<_Sample>::alpha() {
-   return this->_alpha;
-}
-
-template <typename _Sample>
-const _Sample &AlphaTrueColorPixel<_Sample>::alpha() const {
-   return this->_alpha;
-}
-
 void Header::set(std::uint32_t width, std::uint32_t height, std::uint8_t bit_depth,
                            std::uint8_t color_type, std::uint8_t compression_method,
                            std::uint8_t filter_method, std::uint8_t interlace_method)
@@ -1423,6 +1373,7 @@ void Image::filter() {
       }
       case PixelEnum::ALPHA_TRUE_COLOR_PIXEL_8BIT:
       {
+         std::cout << "Filtering row " << i << std::endl;
          std::optional<AlphaTrueColorScanline8Bit> previous = (i == 0)
             ? std::optional<AlphaTrueColorScanline8Bit>(std::nullopt)
             : std::get<AlphaTrueColorScanline8Bit>(current_data[i-1]);
