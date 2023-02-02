@@ -304,6 +304,8 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
       status_error("Failed to load input: ", exc.error);
       return 1;
    }
+
+   bool all_techniques = false;
    
    if (parser.is_used("--all")
        || (!parser.is_used("--trailing-data-payload")
@@ -312,6 +314,13 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
            && !parser.is_used("--stego-payload")))
    {
       status_normal("Attempting to extract all techniques.");
+      all_techniques = true;
+   }
+
+   std::size_t payloads_found = 0;
+
+   if (all_techniques || parser.is_used("--trailing-data-payload"))
+   {
       status_normal("Searching for trailing data...");
 
       if (payload.has_trailing_data())
@@ -332,122 +341,239 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
             status_error("Failed to save trailing data: ", exc.error);
             return 2;
          }
+
+         ++payloads_found;
       }
-      else { status_normal("No trailing data found."); }
+      else {
+         if (all_techniques) { status_normal("No trailing data found.\n"); }
+         else { status_error("No trailing data found."); return 3; }
+      }
+   }
       
-      std::map<std::string,std::size_t> found_payloads;
+   std::map<std::string,std::size_t> found_payloads;
 
-      if (payload.has_chunk("tEXt"))
+   if (all_techniques || parser.is_used("--text-section-payload"))
+   {
+      if (all_techniques)
       {
-         status_normal("Scanning tEXt sections for possible payloads...");
-
-         auto text_chunks = payload.get_chunks("tEXt");
-      
-         for (auto &chunk : text_chunks)
+         if (payload.has_chunk("tEXt"))
          {
-            auto text = chunk.upcast<png::Text>();
-            auto keyword = text.keyword();
-            auto data = text.text();
+            status_normal("Scanning tEXt sections for possible payloads...");
 
-            if (is_base64_string(data))
+            auto text_chunks = payload.get_chunks("tEXt");
+      
+            for (auto &chunk : text_chunks)
             {
-               status_alert("Found payload with keyword \"", keyword, "\"!");
+               auto text = chunk.upcast<png::Text>();
+               auto keyword = text.keyword();
+               auto data = text.text();
 
-               std::vector<std::uint8_t> decoded_data;
+               if (is_base64_string(data))
+               {
+                  status_alert("Found payload with keyword \"", keyword, "\"!");
+
+                  std::vector<std::uint8_t> decoded_data;
                
-               try {
-                  decoded_data = base64_decode(data);
-               }
-               catch (exception::Exception &exc) {
-                  status_error("Failed to decode payload: ", exc.error);
-                  return 3;
-               }
+                  try {
+                     decoded_data = base64_decode(data);
+                  }
+                  catch (exception::Exception &exc) {
+                     status_error("Failed to decode payload: ", exc.error);
+                     return 4;
+                  }
 
-               found_payloads[keyword] += 1;
-               std::stringstream decoded_filename;
+                  found_payloads[keyword] += 1;
+                  std::stringstream decoded_filename;
 
-               decoded_filename << output << "/" << keyword << "." << std::setw(4) << std::setfill('0') << found_payloads[keyword] << ".bin";
+                  decoded_filename << output << "/" << keyword << "." << std::setw(4) << std::setfill('0') << found_payloads[keyword] << ".bin";
+                  
+                  try {
+                     status_normal("Saving payload to \"", decoded_filename.str(), "\"...");
+                     write_file(decoded_filename.str(), decoded_data);
+                     status_alert("Payload saved!\n");
+                  }
+                  catch (exception::Exception &exc) {
+                     status_error("Failed to write file: ", exc.error);
+                     return 5;
+                  }
 
-               try {
-                  status_normal("Saving payload to \"", decoded_filename.str(), "\"...");
-                  write_file(decoded_filename.str(), decoded_data);
-                  status_alert("Payload saved!\n");
+                  ++payloads_found;
                }
-               catch (exception::Exception &exc) {
-                  status_error("Failed to write file: ", exc.error);
-                  return 4;
-               }
+               else { status_normal("Chunk with keyword \"", keyword, "\" is not a payload."); }
             }
-            else { status_normal("Chunk with keyword \"", keyword, "\" is not a payload."); }
          }
+         else { status_normal("No tEXt sections found to scan.\n"); }
       }
-      else { status_normal("No tEXt sections to scan."); }
+      else {
+         auto keyword = parser.get<std::string>("--text-section-payload");
 
-      if (payload.has_chunk("zTXt"))
-      {
-         status_normal("Scanning zTXt sections for possible payloads...");
+         if (!payload.has_chunk("tEXt")) {
+            status_error("No tEXt sections found in input.");
+            return 6;
+         }
 
-         auto text_chunks = payload.get_chunks("zTXt");
+         std::vector<std::vector<std::uint8_t>> text_payloads;
+         
+         try {
+            status_normal("Attempting to extract payloads with keyword \"", keyword, "\"...");
+            text_payloads = payload.extract_text_payloads(keyword);
 
-         for (auto &chunk : text_chunks)
+            if (text_payloads.size() == 0) {
+               status_error("No payloads found.");
+               return 7;
+            }
+
+            status_alert("Found ", text_payloads.size(), " payload", ((text_payloads.size() == 1) ? "!\n" : "s!\n"));
+         }
+         catch (exception::Exception &exc) {
+            status_error("Failed to extract payloads: ", exc.error);
+            return 8;
+         }
+
+         payloads_found += text_payloads.size();
+
+         for (auto &extracted : text_payloads)
          {
-            auto text = chunk.upcast<png::ZText>();
-            auto keyword = text.keyword();
-            std::string data;
+            found_payloads[keyword] += 1;
+            std::stringstream decoded_filename;
 
+            decoded_filename << output << "/" << keyword << "." << std::setw(4) << std::setfill('0') << found_payloads[keyword] << ".bin";
+                  
             try {
-               status_normal("Attempting to decompress chunk with keyword \"", keyword, "\"...");
-               data = text.text();
-               status_alert("Successfully decompressed!");
+               status_normal("Saving payload to \"", decoded_filename.str(), "\"...");
+               write_file(decoded_filename.str(), extracted);
+               status_alert("Payload saved!");
             }
             catch (exception::Exception &exc) {
-               status_error("Decompression error: ", exc.error);
-               return 5;
+               status_error("Failed to write file: ", exc.error);
+               return 9;
             }
-
-            if (is_base64_string(data))
-            {
-               status_alert("Found payload with keyword \"", keyword, "\"!");
-
-               std::vector<std::uint8_t> decoded_data;
-               
-               try {
-                  decoded_data = base64_decode(data);
-               }
-               catch (exception::Exception &exc) {
-                  status_error("Failed to decode payload: ", exc.error);
-                  return 6;
-               }
-
-               found_payloads[keyword] += 1;
-               std::stringstream decoded_filename;
-
-               decoded_filename << output << "/" << keyword << "." << std::setw(4) << std::setfill('0') << found_payloads[keyword] << ".bin";
-
-               try {
-                  status_normal("Saving payload to \"", decoded_filename.str(), "\"...");
-                  write_file(decoded_filename.str(), decoded_data);
-                  status_alert("Payload saved!\n");
-               }
-               catch (exception::Exception &exc) {
-                  status_error("Failed to write file: ", exc.error);
-                  return 7;
-               }
-            }
-            else { status_normal("Chunk with keyword \"", keyword, "\" is not a payload."); }
          }
       }
-      else { status_normal("No zTXt sections to scan."); }
+   }
 
+   if (all_techniques || parser.is_used("--ztxt-section-payload"))
+   {
+      if (all_techniques)
+      {
+         if (payload.has_chunk("zTXt"))
+         {
+            status_normal("Scanning zTXt sections for possible payloads...");
+
+            auto text_chunks = payload.get_chunks("zTXt");
+      
+            for (auto &chunk : text_chunks)
+            {
+               auto text = chunk.upcast<png::ZText>();
+               auto keyword = text.keyword();
+               std::string data;
+
+               try {
+                  status_normal("Attempting to decompress zTXt section...");
+                  data = text.text();
+                  status_alert("Text decompressed!");
+               }
+               catch (exception::Exception &exc)
+               {
+                  status_error("Failed to decompress: ", exc.error);
+                  return 10;
+               }
+
+               if (is_base64_string(data))
+               {
+                  status_alert("Found payload with keyword \"", keyword, "\"!");
+
+                  std::vector<std::uint8_t> decoded_data;
+               
+                  try {
+                     decoded_data = base64_decode(data);
+                  }
+                  catch (exception::Exception &exc) {
+                     status_error("Failed to decode payload: ", exc.error);
+                     return 10;
+                  }
+
+                  found_payloads[keyword] += 1;
+                  std::stringstream decoded_filename;
+
+                  decoded_filename << output << "/" << keyword << "." << std::setw(4) << std::setfill('0') << found_payloads[keyword] << ".bin";
+                  
+                  try {
+                     status_normal("Saving payload to \"", decoded_filename.str(), "\"...");
+                     write_file(decoded_filename.str(), decoded_data);
+                     status_alert("Payload saved!\n");
+                  }
+                  catch (exception::Exception &exc) {
+                     status_error("Failed to write file: ", exc.error);
+                     return 11;
+                  }
+
+                  ++payloads_found;
+               }
+               else { status_normal("Chunk with keyword \"", keyword, "\" is not a payload."); }
+            }
+         }
+         else { status_normal("No zTXt sections found to scan.\n"); }
+      }
+      else {
+         auto keyword = parser.get<std::string>("--ztxt-section-payload");
+
+         if (!payload.has_chunk("zTXt")) {
+            status_error("No zTXt sections found in input.");
+            return 12;
+         }
+
+         std::vector<std::vector<std::uint8_t>> text_payloads;
+         
+         try {
+            status_normal("Attempting to extract payloads with keyword \"", keyword, "\"...");
+            text_payloads = payload.extract_ztext_payloads(keyword);
+
+            if (text_payloads.size() == 0) {
+               status_error("No payloads found.");
+               return 13;
+            }
+
+            status_alert("Found ", text_payloads.size(), " payload", ((text_payloads.size() == 1) ? "!\n" : "s!\n"));
+         }
+         catch (exception::Exception &exc) {
+            status_error("Failed to extract payloads: ", exc.error);
+            return 14;
+         }
+
+         payloads_found += text_payloads.size();
+
+         for (auto &extracted : text_payloads)
+         {
+            found_payloads[keyword] += 1;
+            std::stringstream decoded_filename;
+
+            decoded_filename << output << "/" << keyword << "." << std::setw(4) << std::setfill('0') << found_payloads[keyword] << ".bin";
+                  
+            try {
+               status_normal("Saving payload to \"", decoded_filename.str(), "\"...");
+               write_file(decoded_filename.str(), extracted);
+               status_alert("Payload saved!");
+            }
+            catch (exception::Exception &exc) {
+               status_error("Failed to write file: ", exc.error);
+               return 15;
+            }
+         }
+      }
+   }
+
+   if (all_techniques || parser.is_used("--stego-payload"))
+   {
       try {
-         status_normal("Loading payload to check for stego data...");
+         status_normal("Loading input to check for stego data...");
          payload.load();
-         status_normal("Payload loaded.");
+         status_normal("Input loaded.");
       }
       catch (exception::Exception &exc)
       {
          status_error("Failed to load payload: ", exc.error);
-         return 8;
+         return 16;
       }
 
       if (payload.has_stego_payload()) {
@@ -462,7 +588,7 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
          }
          catch (exception::Exception &exc) {
             status_error("Failed to extract stego payload: ", exc.error);
-            return 9;
+            return 17;
          }
 
          std::string stego_filename = output + std::string("/stego_payload.bin");
@@ -474,14 +600,18 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
          }
          catch (exception::Exception &exc) {
             status_error("Failed to save stego data: ", exc.error);
-            return 10;
+            return 18;
          }
+
+         ++payloads_found;
       }
-
-      status_normal("Extraction techniques exhausted.");
-
-      return 0;
+      else {
+         if (all_techniques) { status_normal("No stego payload found."); }
+         else { status_error("No stego payload found."); return 19; }
+      }
    }
+   
+   status_normal("Extraction techniques exhausted. Found ", payloads_found, " payload", ((payloads_found == 1) ? "." : "s."));
 
    return 0;
 }
