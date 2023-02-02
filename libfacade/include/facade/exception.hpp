@@ -331,5 +331,19 @@ namespace exception
    public:
       NoStegoData() : Exception("No stego data: there is no steganographic data within the image.") {}
    };
+
+   class ChunkNotFound : public Exception
+   {
+   public:
+      std::string tag;
+
+      ChunkNotFound(std::string tag) : tag(tag), Exception() {
+         std::stringstream stream;
+
+         stream << "Chunk not found: chunks with the tag \"" << tag << "\" could not be found in the image.";
+
+         this->error = stream.str();
+      }
+   };
 }}
 #endif

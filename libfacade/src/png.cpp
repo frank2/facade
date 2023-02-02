@@ -612,7 +612,7 @@ template <typename PixelType>
 void ScanlineBase<PixelType>::set_filter_type(std::uint8_t filter_type) { this->_filter_type = filter_type; }
 
 template <typename PixelType>
-std::vector<typename ScanlineBase<PixelType>::Span> ScanlineBase<PixelType>::pixel_data() const { return this->_pixel_data; }
+const std::vector<typename ScanlineBase<PixelType>::Span> &ScanlineBase<PixelType>::pixel_data() const { return this->_pixel_data; }
 
 template <typename PixelType>
 std::size_t ScanlineBase<PixelType>::pixel_span() const { return this->_pixel_data.size(); }
@@ -662,8 +662,10 @@ std::vector<std::uint8_t> ScanlineBase<PixelType>::to_raw() const {
 
    result.push_back(this->filter_type());
 
-   auto raw_pixels = pixels_to_raw<PixelType>(this->_pixel_data);
-   result.insert(result.end(), raw_pixels.begin(), raw_pixels.end());
+   //auto raw_pixels = pixels_to_raw<PixelType>(this->_pixel_data);
+   auto raw_pixels = reinterpret_cast<const std::uint8_t *>(this->_pixel_data.data());
+   auto raw_pixel_size = this->_pixel_data.size() * sizeof(PixelType);
+   result.insert(result.end(), &raw_pixels[0], &raw_pixels[raw_pixel_size]);
 
    return result;
 }
@@ -749,14 +751,17 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(std::optional<ScanlineBa
    for (std::uint8_t i=0; i<5; ++i)
    {
       auto filtered = this->filter(i, previous);
-      auto raw = pixels_to_raw<PixelType>(filtered.pixel_data());
-      auto signed_raw = std::vector<std::int8_t>(raw.begin(), raw.end());
+      //auto raw = pixels_to_raw<PixelType>(filtered.pixel_data());
+      auto raw = reinterpret_cast<const std::int8_t *>(filtered.pixel_data().data());
+      auto raw_end = filtered.pixel_data().size() * sizeof(PixelType);
 
       std::intptr_t sum = 0;
 
-      for (auto i8 : signed_raw)
-         sum += i8;
-
+      for (std::size_t j=0; j<raw_end; ++j)
+         sum += raw[j];
+      //for (auto &u8 : raw)
+      //   sum += static_cast<std::int8_t>(u8);
+      
       std::size_t abs = std::abs(sum);
 
       if (i == 0 || abs < best_scanline.first)
@@ -881,6 +886,19 @@ const Scanline &Image::operator[](std::size_t index) const {
    return this->scanline(index);
 }
 
+bool Image::has_chunk(const std::string &tag) const {
+   return this->chunk_map.find(tag) != this->chunk_map.end();
+}
+
+std::vector<ChunkVec> Image::get_chunks(const std::string &tag) const {
+   if (!this->has_chunk(tag)) { throw exception::ChunkNotFound(tag); }
+   return this->chunk_map.at(tag);
+}
+
+void Image::add_chunk(const std::string &tag, const ChunkVec &chunk) {
+   this->chunk_map[tag].push_back(chunk);
+}
+
 bool Image::has_trailing_data() const { return this->trailing_data.has_value(); }
 
 std::vector<std::uint8_t> &Image::get_trailing_data() { return *this->trailing_data; }
@@ -928,15 +946,14 @@ void Image::parse(const std::vector<std::uint8_t> &data, bool validate) {
 }
 
 void Image::parse(const std::string &filename, bool validate) {
-   std::basic_ifstream<std::uint8_t> fp(filename, std::ios::binary);
+   std::basic_ifstream<std::uint8_t> fp(filename, std::ios::binary | std::ios::ate);
    if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
-
-   auto vec_data = std::vector<std::uint8_t>();
-   vec_data.insert(vec_data.begin(),
-                   std::istreambuf_iterator<std::uint8_t>(fp),
-                   std::istreambuf_iterator<std::uint8_t>());
-
+   
+   auto vec_data = std::vector<std::uint8_t>(fp.tellg());
+   fp.seekg(0, std::ios::beg);
+   fp.read(vec_data.data(), vec_data.size());
    fp.close();
+
    this->parse(vec_data, validate);
 }
 
@@ -960,7 +977,7 @@ const Scanline &Image::scanline(std::size_t index) const {
 }
    
 bool Image::has_header() const {
-   return this->chunk_map.find("IHDR") != this->chunk_map.end();
+   return this->has_chunk("IHDR");
 }
 
 Header &Image::header() {
@@ -977,13 +994,13 @@ const Header &Image::header() const {
 
 Header &Image::new_header() {
    this->chunk_map["IHDR"].clear();
-   this->chunk_map["IHDR"].push_back(Header().as_chunk_vec());
+   this->add_chunk("IHDR", Header().as_chunk_vec());
 
    return this->header();
 }
 
 bool Image::has_image_data() const {
-   return this->chunk_map.find("IDAT") != this->chunk_map.end();
+   return this->has_chunk("IDAT");
 }
 
 bool Image::is_loaded() const {
@@ -995,7 +1012,7 @@ void Image::decompress() {
    
    std::vector<std::uint8_t> combined;
 
-   for (auto &chunk : this->chunk_map.at("IDAT"))
+   for (auto &chunk : this->chunk_map["IDAT"])
       combined.insert(combined.end(), chunk.data().begin(), chunk.data().end());
 
    auto decompressed = facade::decompress(combined);
@@ -1373,7 +1390,7 @@ void Image::filter() {
       }
       case PixelEnum::ALPHA_TRUE_COLOR_PIXEL_8BIT:
       {
-         std::cout << "Filtering row " << i << std::endl;
+         //std::cout << "Filtering row " << i << std::endl;
          std::optional<AlphaTrueColorScanline8Bit> previous = (i == 0)
             ? std::optional<AlphaTrueColorScanline8Bit>(std::nullopt)
             : std::get<AlphaTrueColorScanline8Bit>(current_data[i-1]);
@@ -1397,7 +1414,7 @@ void Image::filter() {
 std::vector<std::uint8_t> Image::to_file() const
 {
    std::vector<std::string> chunks = {
-      /* critical chunks */
+      /* critical chunks (except for gama, apparently it just... goes there) */
       "IHDR", "gAMA", "PLTE", "IDAT",
 
       /* ancillary chunks */
@@ -1428,7 +1445,7 @@ std::vector<std::uint8_t> Image::to_file() const
       }
    }
 
-   if (this->chunk_map.find("IEND") == this->chunk_map.end())
+   if (!this->has_chunk("IEND"))
    {
       auto end = End().to_chunk_ptr();
       file_data.insert(file_data.end(), end.first.begin(), end.first.end());
@@ -1452,11 +1469,11 @@ void Image::save(const std::string &filename) const
 }
 
 bool Image::has_text() const {
-   return this->chunk_map.find("tEXt") != this->chunk_map.end();
+   return this->has_chunk("tEXt");
 }
 
 Text &Image::add_text(const std::string &keyword, const std::string &text) {
-   this->chunk_map["tEXt"].push_back(Text(keyword, text).as_chunk_vec());
+   this->add_chunk("tEXt", Text(keyword, text).as_chunk_vec());
 
    return this->chunk_map["tEXt"].back().upcast<Text>();
 }
@@ -1493,11 +1510,11 @@ std::vector<Text> Image::get_text(const std::string &keyword) const {
 }
 
 bool Image::has_ztext() const {
-   return this->chunk_map.find("zTXt") != this->chunk_map.end();
+   return this->has_chunk("zTXt");
 }
 
 ZText &Image::add_ztext(const std::string &keyword, const std::string &text) {
-   this->chunk_map["zTXt"].push_back(ZText(keyword, text).as_chunk_vec());
+   this->add_chunk("zTXt", ZText(keyword, text).as_chunk_vec());
 
    return this->chunk_map["zTXt"].back().upcast<ZText>();
 }

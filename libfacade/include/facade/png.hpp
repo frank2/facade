@@ -34,6 +34,7 @@ namespace png
    public:
       ChunkTag() { std::memset(this->_tag, 0, sizeof(std::uint8_t) * 4); }
       ChunkTag(const std::uint8_t *tag) { this->set_tag(tag); }
+      ChunkTag(const char *tag) { this->set_tag(std::string(tag)); }
       ChunkTag(const std::string tag) { this->set_tag(tag); }
       ChunkTag(const ChunkTag &other) { this->set_tag(&other._tag[0]); }
 
@@ -374,10 +375,12 @@ namespace png
    
       Pixel operator[](std::size_t index) const { return this->get(index); }
 
-      std::vector<std::uint8_t> data() const {
+      const std::uint8_t *data() const {
          auto u8_ptr = reinterpret_cast<const std::uint8_t *>(&this->_data);
-         return std::vector<std::uint8_t>(&u8_ptr[0], &u8_ptr[sizeof(this->_data)]);
+         return u8_ptr;
       }
+
+      std::size_t data_size() const { return sizeof(PixelType); }
       
       Pixel get(std::size_t index=0) const {
          if (index > this->Samples) { throw exception::OutOfBounds(index, this->Samples); }
@@ -423,7 +426,7 @@ namespace png
       for (auto &span : pixels)
       {
          auto data = span.data();
-         result.insert(result.end(), data.begin(), data.end());
+         result.insert(result.end(), &data[0], &data[span.data_size()]);
       }
 
       return result;
@@ -572,7 +575,7 @@ namespace png
       std::uint8_t filter_type() const;
       void set_filter_type(std::uint8_t filter_type);
 
-      std::vector<Span> pixel_data() const;
+      const std::vector<Span> &pixel_data() const;
 
       std::size_t pixel_span() const;
       std::size_t pixel_width() const;
@@ -677,6 +680,10 @@ namespace png
 
       Scanline &operator[](std::size_t index);
       const Scanline &operator[](std::size_t index) const;
+
+      bool has_chunk(const std::string &tag) const;
+      std::vector<ChunkVec> get_chunks(const std::string &tag) const;
+      void add_chunk(const std::string &tag, const ChunkVec &chunk);
 
       bool has_trailing_data() const;
       std::vector<std::uint8_t> &get_trailing_data();
