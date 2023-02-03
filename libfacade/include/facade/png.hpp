@@ -26,8 +26,9 @@ namespace facade
 {
 namespace png
 {
+   class
    PACK(1)
-   EXPORT class ChunkTag
+   EXPORT ChunkTag
    {
       std::uint8_t _tag[4];
 
@@ -142,10 +143,10 @@ namespace png
       AlphaTrueColor = 6
    };
 
-   PACK(1)
-   EXPORT
    template <typename _Base=std::uint8_t, std::size_t _Bits=sizeof(_Base)*8>
-   class Sample
+   class
+   PACK(1)
+      EXPORT Sample
    {
       static_assert(_Bits == 1 || _Bits == 2 || _Bits == 4 || _Bits == 8 || _Bits == 16,
                     "Bits must be 1, 2, 4, 8 or 16.");
