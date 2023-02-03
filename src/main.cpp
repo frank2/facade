@@ -101,6 +101,8 @@ void write_file(const std::string &filename, const std::vector<std::uint8_t> dat
 }
 
 int create_payload(const argparse::ArgumentParser &parser) {
+   std::cout << HEADER << std::endl;
+
    status_normal("Creating a new payload!");
 
    auto input = parser.get<std::string>("--input");
@@ -285,6 +287,8 @@ int create_payload(const argparse::ArgumentParser &parser) {
 }
 
 int extract_payloads(const argparse::ArgumentParser &parser) {
+   std::cout << HEADER << std::endl;
+      
    status_normal("Attempting to extract payloads!");
 
    auto input = parser.get<std::string>("--input");
@@ -401,6 +405,9 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
                }
                else { status_normal("Chunk with keyword \"", keyword, "\" is not a payload."); }
             }
+
+            if (payloads_found > 0) { status_normal("Finished extracting payloads!\n"); }
+            else { status_normal("No payloads found.\n"); }
          }
          else { status_normal("No tEXt sections found to scan.\n"); }
       }
@@ -449,6 +456,9 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
                return 9;
             }
          }
+      
+         if (payloads_found > 0) { status_normal("Finished extracting payloads!\n"); }
+         else { status_normal("No payloads found.\n"); }
       }
    }
 
@@ -512,6 +522,9 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
                }
                else { status_normal("Chunk with keyword \"", keyword, "\" is not a payload."); }
             }
+      
+            if (payloads_found > 0) { status_normal("Finished extracting payloads!\n"); }
+            else { status_normal("No payloads found.\n"); }
          }
          else { status_normal("No zTXt sections found to scan.\n"); }
       }
@@ -560,6 +573,9 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
                return 15;
             }
          }
+      
+         if (payloads_found > 0) { status_normal("Finished extracting payloads!\n"); }
+         else { status_normal("No payloads found.\n"); }
       }
    }
 
@@ -617,8 +633,180 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
 }
 
 int detect_payloads(const argparse::ArgumentParser &parser) {
-   status_normal("Detecting payloads.");
-   std::cout << parser;
+   auto minimal = parser.get<bool>("--minimal");
+
+   if (!minimal)
+   {
+      std::cout << HEADER;
+      status_normal("Detecting possible payloads in PNG file!");
+   }
+   
+   auto input = parser.get<std::string>("filename");
+
+   if (!minimal) { status_normal("-> input: ", input, "\n"); }
+
+   bool auto_detect = false;
+
+   if (parser.is_used("--auto-detect")
+       || (!parser.is_used("--trailing-data")
+           && !parser.is_used("--text-data")
+           && !parser.is_used("--ztxt-data")
+           && !parser.is_used("--stego-data")))
+   {
+      auto_detect = true;
+
+      if (!minimal)
+         status_normal("Automatically detecting all techniques.");
+   }
+
+   PNGPayload payload;
+
+   try {
+      if (!minimal) { status_normal("Parsing input file \"", input, "\"..."); }
+      payload = PNGPayload(input);
+      if (!minimal) { status_alert("Input parsed!"); }
+   }
+   catch (exception::Exception &exc) {
+      if (!minimal) { status_error("Failed to load input: ", exc.error); }
+      return 1;
+   }
+
+   std::vector<std::string> minimal_report;
+
+   if (auto_detect || parser.is_used("--trailing-data"))
+   {
+      if (!minimal) { status_normal("Checking for trailing data..."); }
+      
+      if (payload.has_trailing_data()) {
+         if (!minimal) { status_alert("Trailing data found!\n"); }
+         minimal_report.push_back("trailing-data");
+      }
+      else if (!minimal) { status_normal("No trailing data found.\n"); }
+   }
+
+   if (auto_detect || parser.is_used("--text-data"))
+   {
+      if (!minimal) { status_normal("Checking for tEXt payloads..."); }
+
+      auto keyword = parser.get<std::string>("--text-data");
+
+      if (keyword.size() == 0 && !minimal) { status_normal("tEXt keyword is blank, scanning tEXt sections."); }
+
+      if (!payload.has_chunk("tEXt"))
+      {
+         if (!minimal) { status_normal("No tEXt sections present."); }
+      }
+      else
+      {
+         auto text_chunks = payload.get_chunks("tEXt");
+         std::vector<std::string> found_payloads;
+
+         for (auto &chunk : text_chunks)
+         {
+            auto text_chunk = chunk.upcast<png::Text>();
+            auto found_keyword = text_chunk.keyword();
+            if (keyword.size() > 0 && found_keyword != keyword) { continue; }
+
+            auto data = text_chunk.text();
+
+            if (is_base64_string(data)) {
+               if (!minimal) { status_alert("Found payload keyword in tEXt: ", found_keyword); }
+               found_payloads.push_back(found_keyword);
+            }
+         }
+
+         for (auto &found_keyword : found_payloads)
+         {
+            minimal_report.push_back(std::string("tEXt:") + found_keyword);
+         }
+      }
+
+      if (!minimal) { status_normal("Finished scanning for tEXt payloads.\n"); }
+   }
+   
+   if (auto_detect || parser.is_used("--ztxt-data"))
+   {
+      if (!minimal) { status_normal("Checking for zTXt payloads..."); }
+
+      auto keyword = parser.get<std::string>("--ztxt-data");
+
+      if (keyword.size() == 0 && !minimal) { status_normal("zTXt keyword is blank, scanning zTXt sections."); }
+
+      if (!payload.has_chunk("zTXt"))
+      {
+         if (!minimal) { status_normal("No zTXt sections present."); }
+      }
+      else
+      {
+         auto text_chunks = payload.get_chunks("zTXt");
+         std::vector<std::string> found_payloads;
+
+         for (auto &chunk : text_chunks)
+         {
+            auto text_chunk = chunk.upcast<png::ZText>();
+            auto found_keyword = text_chunk.keyword();
+            if (keyword.size() > 0 && found_keyword != keyword) { continue; }
+
+            std::string data;
+            try {
+               if (!minimal) { status_normal("Attempting to decompress zTXt section with keyword \"", found_keyword, "\"..."); }
+               data = text_chunk.text();
+               if (!minimal) { status_normal("Text decompressed!"); }
+            }
+            catch (exception::Exception &exc) {
+               if (!minimal) { status_error("Decompression failed: ", exc.error); }
+               return 2;
+            }
+            
+            if (is_base64_string(data)) {
+               if (!minimal) { status_alert("Found payload keyword in zTXt: ", found_keyword); }
+               found_payloads.push_back(found_keyword);
+            }
+         }
+
+         for (auto &found_keyword : found_payloads)
+         {
+            minimal_report.push_back(std::string("zTXt:") + found_keyword);
+         }
+      }
+
+      if (!minimal) { status_normal("Finished scanning for zTXt payloads.\n"); }
+   }
+
+   if (auto_detect || parser.is_used("--stego-data"))
+   {
+      if (!minimal) { status_normal("Checking for stego payload..."); }
+
+      try {
+         if (!minimal) { status_normal("Loading input to check for stego data..."); }
+         payload.load();
+         if (!minimal) { status_normal("Input loaded!"); }
+      }
+      catch (exception::Exception &exc) {
+         if (!minimal) { status_error("Failed to load input: ", exc.error); }
+         return 3;
+      }
+
+      if (payload.has_stego_payload()) {
+         if (!minimal) { status_alert("Stego data present!\n"); }
+         minimal_report.push_back("stego");
+      }
+      else if (!minimal) { status_normal("No stego data present.\n"); }
+   }
+
+   if (!minimal) { status_normal("Finished detecting payloads. Found ", minimal_report.size(), " payload", ((minimal_report.size() == 1) ? "." : "s.")); }
+   else if (minimal_report.size() > 0) {
+      for (std::size_t i=0; i<minimal_report.size(); ++i)
+      {
+         auto report = minimal_report[i];
+         std::cout << report;
+
+         if (i != minimal_report.size()-1)
+            std::cout << ",";
+      }
+
+      std::cout << std::endl;
+   }
 
    return 0;
 }
@@ -700,9 +888,8 @@ int main(int argc, char *argv[])
    detect_args.add_description("Detect what possible methods are encoded in this PNG file.");
 
    detect_args.add_argument("filename")
-      .help("The file or files to scan.")
-      .required()
-      .remaining();
+      .help("The file to scan.")
+      .required();
    
    detect_args.add_argument("-a", "--auto-detect")
       .help("Automatically detect what's in the file. This is the default behavior if no arguments are supplied.")
@@ -721,11 +908,13 @@ int main(int argc, char *argv[])
 
    detect_args.add_argument("-t", "--text-data")
       .help("Check if this PNG has a 'tEXt' section payload. "
-            "Supply a blank string to detect all 'tEXt' payloads, or supply a keyword to detect a specific payload.");
+            "Supply a blank string to detect all 'tEXt' payloads, or supply a keyword to detect a specific payload.")
+      .default_value(std::string(""));
 
    detect_args.add_argument("-z", "--ztxt-data")
       .help("Check if this PNG has a 'zTXt' section payload. "
-            "Supply a blank string to detect all 'zTXt' payloads, or supply a keyword to detect a specific payload.");
+            "Supply a blank string to detect all 'zTXt' payloads, or supply a keyword to detect a specific payload.")
+      .default_value(std::string(""));
 
    detect_args.add_argument("-s", "--stego-data")
       .help("Check if this PNG image has a steganographic payload.");
@@ -751,7 +940,6 @@ int main(int argc, char *argv[])
       std::exit(2);
    }
    
-   std::cout << HEADER << std::endl;
    int exit_code;
 
    try
