@@ -28,7 +28,8 @@ namespace png
 {
    class
    PACK(1)
-   EXPORT ChunkTag
+   EXPORT
+      ChunkTag
    {
       std::uint8_t _tag[4];
 
@@ -39,7 +40,7 @@ namespace png
       ChunkTag(const std::string tag) { this->set_tag(tag); }
       ChunkTag(const ChunkTag &other) { this->set_tag(&other._tag[0]); }
 
-      friend bool operator==(const ChunkTag &left, const ChunkTag &right);
+      bool operator==(const ChunkTag &other) const;
 
       void set_tag(const std::string tag);
       void set_tag(const std::uint8_t *tag);
@@ -51,7 +52,9 @@ namespace png
 
    class ChunkPtr;
 
-   EXPORT class ChunkVec
+   class
+   EXPORT
+   ChunkVec
    {
       ChunkTag _tag;
       std::vector<std::uint8_t> _data;
@@ -65,7 +68,7 @@ namespace png
       ChunkVec(const ChunkTag tag, const std::vector<std::uint8_t> &data) : _tag(tag), _data(data) {}
       ChunkVec(const ChunkVec &other) : _tag(other._tag), _data(other._data) {}
 
-      friend bool operator==(const ChunkVec &left, const ChunkVec &right);
+      bool operator==(const ChunkVec &other) const;
 
       std::size_t length() const;
 
@@ -100,7 +103,9 @@ namespace png
       const ChunkVec &as_chunk_vec() const;
    };
       
-   EXPORT class ChunkPtr
+   class
+   EXPORT
+   ChunkPtr
    {
       const std::uint32_t *_length;
       const ChunkTag *_tag;
@@ -134,7 +139,9 @@ namespace png
       ChunkVec to_chunk_vec() const;
    };
 
-   EXPORT enum ColorType
+   enum
+   EXPORT
+   ColorType
    {
       Grayscale = 0,
       TrueColor = 2,
@@ -146,7 +153,8 @@ namespace png
    template <typename _Base=std::uint8_t, std::size_t _Bits=sizeof(_Base)*8>
    class
    PACK(1)
-      EXPORT Sample
+   EXPORT
+      Sample
    {
       static_assert(_Bits == 1 || _Bits == 2 || _Bits == 4 || _Bits == 8 || _Bits == 16,
                     "Bits must be 1, 2, 4, 8 or 16.");
@@ -211,10 +219,11 @@ namespace png
    using GrayscalePixel8Bit = GrayscalePixel<std::uint8_t>;
    using GrayscalePixel16Bit = GrayscalePixel<std::uint16_t>;
    
+   template <typename _Sample=Sample8Bit>
+   class
    PACK(1)
    EXPORT
-   template <typename _Sample=Sample8Bit>
-   class TrueColorPixel
+      TrueColorPixel
    {
       static_assert(std::is_same<_Sample,Sample8Bit>::value || std::is_same<_Sample,Sample16Bit>::value,
                     "Sample type must be Sample8Bit or Sample16Bit.");
@@ -270,39 +279,41 @@ namespace png
    using PalettePixel4Bit = PalettePixel<4>;
    using PalettePixel8Bit = PalettePixel<8>;
 
+   template <typename _Base=std::uint8_t>
+   class
    PACK(1)
    EXPORT
-   template <typename _Base=std::uint8_t>
-   class AlphaGrayscalePixel : public GrayscalePixel<_Base>
+      AlphaGrayscalePixel : public GrayscalePixel<_Base>
    {
       static_assert(std::is_same<_Base,std::uint8_t>::value || std::is_same<_Base,std::uint16_t>::value,
                     "Base must be uint8_t or uint16_t.");
    public:
-      using Sample = Sample<_Base>;
-      using Base = typename Sample::Base;
+      //using Sample = Sample<_Base>;
+      using Base = _Base;
 
    private:
-      Sample _alpha;
+      Sample<_Base> _alpha;
 
    public:
-      const static std::size_t Bits = Sample::Bits*2;
+      const static std::size_t Bits = Sample<_Base>::Bits*2;
       
       AlphaGrayscalePixel() : _alpha(0), GrayscalePixel<_Base>() {}
-      AlphaGrayscalePixel(Sample value, Sample alpha) : _alpha(alpha), GrayscalePixel<_Base>(value) {}
+      AlphaGrayscalePixel(Sample<_Base> value, Sample<_Base> alpha) : _alpha(alpha), GrayscalePixel<_Base>(value) {}
       AlphaGrayscalePixel(const AlphaGrayscalePixel &other) : _alpha(other._alpha), GrayscalePixel<_Base>(other) {}
 
-      Sample &alpha() { return this->_alpha; }
-      const Sample &alpha() const { return this->_alpha; }
+      Sample<_Base> &alpha() { return this->_alpha; }
+      const Sample<_Base> &alpha() const { return this->_alpha; }
    };
    UNPACK()
 
    using AlphaGrayscalePixel8Bit = AlphaGrayscalePixel<std::uint8_t>;
    using AlphaGrayscalePixel16Bit = AlphaGrayscalePixel<std::uint16_t>;
    
+   template <typename _Sample=Sample8Bit>
+   class
    PACK(1)
    EXPORT
-   template <typename _Sample=Sample8Bit>
-   class AlphaTrueColorPixel : public TrueColorPixel<_Sample>
+   AlphaTrueColorPixel : public TrueColorPixel<_Sample>
    {
       _Sample _alpha;
 
@@ -359,9 +370,10 @@ namespace png
                               AlphaTrueColorPixel8Bit,
                               AlphaTrueColorPixel16Bit>;
 
-   EXPORT
    template <typename PixelType>
-   class PixelSpan
+   class
+   EXPORT
+   PixelSpan
    {
       union {
          std::uint8_t bits;
@@ -372,7 +384,7 @@ namespace png
       PixelSpan() {}
       PixelSpan(const PixelSpan &other) { std::memcpy(&this->_data, &other._data, sizeof(this->_data)); }
 
-      const static std::size_t Samples = (8 >> (PixelType::Bits / 2)) + static_cast<int>(PixelType::Bits >= 8);
+      const static std::size_t Samples = ((8 * static_cast<int>(PixelType::Bits <= 8)) >> ((PixelType::Bits / 2) * static_cast<int>(PixelType::Bits <= 8))) + static_cast<int>(PixelType::Bits >= 8);
    
       Pixel operator[](std::size_t index) const { return this->get(index); }
 
@@ -418,9 +430,8 @@ namespace png
    template <typename PixelType>
    using PixelRow = std::vector<PixelSpan<PixelType>>;
 
-   EXPORT
    template <typename PixelType>
-   std::vector<std::uint8_t> pixels_to_raw(const PixelRow<PixelType> &pixels)
+   EXPORT std::vector<std::uint8_t> pixels_to_raw(const PixelRow<PixelType> &pixels)
    {
       std::vector<std::uint8_t> result;
 
@@ -433,7 +444,9 @@ namespace png
       return result;
    }
    
-   EXPORT class Header : public ChunkVec
+   class
+   EXPORT
+   Header : public ChunkVec
    {
    public:
       Header() : ChunkVec(std::string("IHDR"), std::vector<std::uint8_t>(13)) {}
@@ -484,7 +497,9 @@ namespace png
       std::size_t buffer_size() const;
    };
 
-   EXPORT class Text : public ChunkVec {
+   class
+   EXPORT
+   Text : public ChunkVec {
    public:
       Text() : ChunkVec(std::string("tEXt")) {}
       Text(std::string keyword, std::string text) : ChunkVec(std::string("tEXt")) {
@@ -508,7 +523,9 @@ namespace png
    };
 
    
-   EXPORT class ZText : public ChunkVec {
+   class
+   EXPORT
+   ZText : public ChunkVec {
    public:
       ZText() : ChunkVec(std::string("zTXt")) {}
       ZText(std::string keyword, std::string text) : ChunkVec(std::string("zTXt")) {
@@ -535,13 +552,17 @@ namespace png
       void set_text(std::string text);
    };
 
-   EXPORT class End : public ChunkVec {
+   class
+   EXPORT
+   End : public ChunkVec {
    public:
       End() : ChunkVec(std::string("IEND")) {}
       End(const End &other) : ChunkVec(other) {}
    };
 
-   enum FilterType
+   enum
+   EXPORT
+   FilterType
    {
       None = 0,
       Sub,
@@ -551,7 +572,9 @@ namespace png
    };
 
    template <typename PixelType>
-   EXPORT class ScanlineBase
+   class
+   EXPORT
+   ScanlineBase
    {
    public:
       using Span = PixelSpan<PixelType>;
@@ -627,7 +650,9 @@ namespace png
                                         AlphaTrueColorScanline8Bit,
                                         AlphaTrueColorScanline16Bit>;
 
-   class Scanline : public ScanlineVariant
+   class
+   EXPORT
+   Scanline : public ScanlineVariant
    {
    public:
       Scanline() : ScanlineVariant() {}
@@ -662,7 +687,9 @@ namespace png
       std::vector<std::uint8_t> to_raw() const;
    };
    
-   EXPORT class Image
+   class
+   EXPORT
+   Image
    {
    public:
       static const std::uint8_t Signature[8];

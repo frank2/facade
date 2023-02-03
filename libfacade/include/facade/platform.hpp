@@ -33,6 +33,9 @@
 
 /* this warning is in relation to a zero-sized array within a union, which works fine across the compilers we're targetting. */
 #pragma warning( disable: 4200 )
+#else
+/* this warning is in relation to a right-shift of 64, which is expected to result in a 0 value. */
+#pragma GCC diagnostic ignored "-Wshift-count-overflow"
 #endif
 
 #endif

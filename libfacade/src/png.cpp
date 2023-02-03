@@ -5,8 +5,8 @@ using namespace facade::png;
 
 const std::uint8_t Image::Signature[8] = { 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n' };
 
-bool png::operator==(const ChunkTag &left, const ChunkTag &right) {
-   return left.tag() == right.tag();
+bool ChunkTag::operator==(const ChunkTag &other) const {
+   return this->tag() == other.tag();
 }
 
 void ChunkTag::set_tag(const std::string tag) {
@@ -24,8 +24,8 @@ const std::uint8_t *ChunkTag::tag() const { return &this->_tag[0]; }
          
 std::string ChunkTag::to_string() const { return std::string(&this->_tag[0], &this->_tag[4]); }
 
-bool png::operator==(const ChunkVec &left, const ChunkVec &right) {
-   return left.tag() == right.tag() && left.data() == right.data();
+bool ChunkVec::operator==(const ChunkVec &other) const {
+   return this->tag() == other.tag() && this->data() == other.data();
 }
 
 std::size_t ChunkVec::length() const {
@@ -851,31 +851,31 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(std::uint8_t filter_type
 Pixel Scanline::operator[](std::size_t index) const { return this->get_pixel(index); }
 
 std::uint8_t Scanline::filter_type() const {
-   return std::visit([](auto &p) -> std::uint8_t { return p.filter_type(); }, *this);
+   return std::visit([](auto &p) -> std::uint8_t { return p.filter_type(); }, *static_cast<const ScanlineVariant *>(this));
 }
 
 void Scanline::set_filter_type(std::uint8_t filter_type) {
-   std::visit([filter_type](auto &p) { p.set_filter_type(filter_type); }, *this);
+   std::visit([filter_type](auto &p) { p.set_filter_type(filter_type); }, *static_cast<ScanlineVariant *>(this));
 }
 
 std::size_t Scanline::pixel_span() const {
-   return std::visit([](auto &p) -> std::size_t { return p.pixel_span(); }, *this);
+   return std::visit([](auto &p) -> std::size_t { return p.pixel_span(); }, *static_cast<const ScanlineVariant *>(this));
 }
 
 std::size_t Scanline::pixel_width() const {
-   return std::visit([](auto &p) -> std::size_t { return p.pixel_width(); }, *this);
+   return std::visit([](auto &p) -> std::size_t { return p.pixel_width(); }, *static_cast<const ScanlineVariant *>(this));
 }
 
 Pixel Scanline::get_pixel(std::size_t index) const {
-   return std::visit([index](auto &p) -> Pixel { return p.get_pixel(index); }, *this);
+   return std::visit([index](auto &p) -> Pixel { return p.get_pixel(index); }, *static_cast<const ScanlineVariant *>(this));
 }
 
 void Scanline::set_pixel(const Pixel &pixel, std::size_t index) {
-   std::visit([&pixel, &index](auto &p) { p.set_pixel(pixel, index); }, *this);
+   std::visit([&pixel, &index](auto &p) { p.set_pixel(pixel, index); }, *static_cast<ScanlineVariant *>(this));
 }
 
 std::vector<std::uint8_t> Scanline::to_raw() const {
-   return std::visit([](auto &p) -> std::vector<std::uint8_t> { return p.to_raw(); }, *this);
+   return std::visit([](auto &p) -> std::vector<std::uint8_t> { return p.to_raw(); }, *static_cast<const ScanlineVariant *>(this));
 }
             
 Scanline &Image::operator[](std::size_t index) {
@@ -946,13 +946,13 @@ void Image::parse(const std::vector<std::uint8_t> &data, bool validate) {
 }
 
 void Image::parse(const std::string &filename, bool validate) {
-   std::basic_ifstream<std::uint8_t> fp(filename, std::ios::binary | std::ios::ate);
+   std::ifstream fp(filename, std::ios::binary); // | std::ios::ate);
    if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
-   
-   auto vec_data = std::vector<std::uint8_t>(fp.tellg());
-   fp.seekg(0, std::ios::beg);
-   fp.read(vec_data.data(), vec_data.size());
-   fp.close();
+
+   auto vec_data = std::vector<std::uint8_t>();
+   vec_data.insert(vec_data.end(),
+                   std::istreambuf_iterator<char>(fp),
+                   std::istreambuf_iterator<char>());
 
    this->parse(vec_data, validate);
 }
@@ -1461,10 +1461,12 @@ void Image::save(const std::string &filename) const
 {
    auto data = this->to_file();
    
-   std::basic_ofstream<std::uint8_t> outfile(filename, std::ios::binary);
+   std::ofstream outfile(filename, std::ios::binary);
    if (!outfile) { throw exception::OpenFileFailure(filename); }
 
-   outfile.write(data.data(), data.size());
+   outfile.write(reinterpret_cast<char *>(data.data()), data.size());
+   if (!outfile) { perror(filename.c_str()); std::cout << "FUCK" << std::endl; throw exception::OpenFileFailure(filename); }
+   
    outfile.close();
 }
 

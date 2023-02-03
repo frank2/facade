@@ -42,11 +42,11 @@ test_pngimage()
       image_raw.insert(image_raw.end(), raw.begin(), raw.end());
    }
 
-   std::basic_ifstream<std::uint8_t> raw_fp("../test/test.raw", std::ios::binary);
+   std::ifstream raw_fp("../test/test.raw", std::ios::binary);
    auto known_raw = std::vector<std::uint8_t>();
    known_raw.insert(known_raw.end(),
-                    std::istreambuf_iterator<std::uint8_t>(raw_fp),
-                    std::istreambuf_iterator<std::uint8_t>());
+                    std::istreambuf_iterator<char>(raw_fp),
+                    std::istreambuf_iterator<char>());
 
    ASSERT(image_raw == known_raw);
 
@@ -177,11 +177,11 @@ test_payload()
 
    ASSERT_SUCCESS(base_payload = PNGPayload("../test/art.png"));
 
-   std::basic_ifstream<std::uint8_t> test_data_fp("../test/test.png", std::ios::binary);
+   std::ifstream test_data_fp("../test/test.png", std::ios::binary);
    auto test_data = std::vector<std::uint8_t>();
    test_data.insert(test_data.begin(),
-                    std::istreambuf_iterator<std::uint8_t>(test_data_fp),
-                    std::istreambuf_iterator<std::uint8_t>());
+                    std::istreambuf_iterator<char>(test_data_fp),
+                    std::istreambuf_iterator<char>());
    
    auto trailing_payload = base_payload;
    ASSERT_SUCCESS(trailing_payload.set_trailing_data(test_data));
