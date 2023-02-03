@@ -905,7 +905,9 @@ std::vector<std::uint8_t> &Image::get_trailing_data() { return *this->trailing_d
 
 const std::vector<std::uint8_t> &Image::get_trailing_data() const { return *this->trailing_data; }
 
-void Image::set_trailing_data(const std::vector<std::uint8_t> &data) { this->trailing_data = data; }
+void Image::set_trailing_data(const std::vector<std::uint8_t> &data) {
+   this->trailing_data = data;
+}
 
 void Image::clear_trailing_data() { this->trailing_data = std::nullopt; }
 

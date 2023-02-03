@@ -80,23 +80,23 @@ void status_error(const Args&... args) {
 
 std::vector<std::uint8_t> read_file(const std::string &filename)
 {
-   std::basic_ifstream<std::uint8_t> fp(filename, std::ios::binary | std::ios::ate);
+   std::ifstream fp(filename, std::ios::binary);
    if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
    
-   auto vec_data = std::vector<std::uint8_t>(fp.tellg());
-   fp.seekg(0, std::ios::beg);
-   fp.read(vec_data.data(), vec_data.size());
-   fp.close();
+   auto vec_data = std::vector<std::uint8_t>();
+   vec_data.insert(vec_data.end(),
+                   std::istreambuf_iterator<char>(fp),
+                   std::istreambuf_iterator<char>());
 
    return vec_data;
 }
 
 void write_file(const std::string &filename, const std::vector<std::uint8_t> data)
 {
-   std::basic_ofstream<std::uint8_t> fp(filename, std::ios::binary);
+   std::basic_ofstream<char> fp(filename, std::ios::binary);
    if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
 
-   fp.write(data.data(), data.size());
+   fp.write(reinterpret_cast<const char *>(data.data()), data.size());
    fp.close();
 }
 
