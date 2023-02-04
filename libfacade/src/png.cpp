@@ -612,7 +612,13 @@ template <typename PixelType>
 void ScanlineBase<PixelType>::set_filter_type(std::uint8_t filter_type) { this->_filter_type = filter_type; }
 
 template <typename PixelType>
-const std::vector<typename ScanlineBase<PixelType>::Span> &ScanlineBase<PixelType>::pixel_data() const { return this->_pixel_data; }
+#if !defined(LIBFACADE_WIN32)
+__attribute__((used)) // on gcc with optimization and shared objects compiled this function disappears, so tell gcc not to do that
+#endif
+const std::vector<typename ScanlineBase<PixelType>::Span> &ScanlineBase<PixelType>::pixel_data() const {
+   return this->_pixel_data;
+
+}
 
 template <typename PixelType>
 std::size_t ScanlineBase<PixelType>::pixel_span() const { return this->_pixel_data.size(); }

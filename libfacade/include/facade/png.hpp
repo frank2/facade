@@ -599,6 +599,9 @@ namespace png
       std::uint8_t filter_type() const;
       void set_filter_type(std::uint8_t filter_type);
 
+#if !defined(LIBFACADE_WIN32)
+      __attribute__((used))
+#endif
       const std::vector<Span> &pixel_data() const;
 
       std::size_t pixel_span() const;
