@@ -5,7 +5,9 @@
 
 namespace facade
 {
-   EXPORT class PNGPayload : public png::Image
+   class
+   EXPORT
+   PNGPayload : public png::Image
    {
    public:
       PNGPayload() : png::Image() {}

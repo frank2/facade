@@ -10,11 +10,19 @@
 #endif
 
 #if defined(LIBFACADE_SHARED)
+
 #if defined(LIBFACADE_WIN32)
+
+#if defined(LIBFACADE_EXPORT)
 #define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __declspec(dllimport)
+#endif
+
 #else
 #define EXPORT __attribute__((visibility("default")))
 #endif
+
 #else
 #define EXPORT
 #endif

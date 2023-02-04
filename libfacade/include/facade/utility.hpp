@@ -10,6 +10,8 @@
 
 #include <zlib.h>
 
+#include <facade/platform.hpp>
+
 namespace facade
 {
    const std::uint32_t CRC32_TABLE[256] = {
@@ -83,19 +85,19 @@ namespace facade
       "abcdefghijklmnopqrstuvwxyz"
       "0123456789+/";
 
-   std::uint16_t endian_swap_16(std::uint16_t value);
-   std::uint32_t endian_swap_32(std::uint32_t value);
-   std::uint32_t crc32(const void *ptr, std::size_t size, std::uint32_t init_crc);
+   EXPORT std::uint16_t endian_swap_16(std::uint16_t value);
+   EXPORT std::uint32_t endian_swap_32(std::uint32_t value);
+   EXPORT std::uint32_t crc32(const void *ptr, std::size_t size, std::uint32_t init_crc);
 
-   std::vector<std::uint8_t> compress(const void *ptr, std::size_t size, int level);
-   std::vector<std::uint8_t> compress(const std::vector<std::uint8_t> &vec, int level);
-   std::vector<std::uint8_t> decompress(const void *ptr, std::size_t size);
-   std::vector<std::uint8_t> decompress(const std::vector<std::uint8_t> &vec);
+   EXPORT std::vector<std::uint8_t> compress(const void *ptr, std::size_t size, int level);
+   EXPORT std::vector<std::uint8_t> compress(const std::vector<std::uint8_t> &vec, int level);
+   EXPORT std::vector<std::uint8_t> decompress(const void *ptr, std::size_t size);
+   EXPORT std::vector<std::uint8_t> decompress(const std::vector<std::uint8_t> &vec);
 
-   bool is_base64_string(const std::string &base64);
-   std::string base64_encode(const void *ptr, std::size_t size);
-   std::string base64_encode(const std::vector<std::uint8_t> &data);
-   std::vector<std::uint8_t> base64_decode(const std::string &data);
+   EXPORT bool is_base64_string(const std::string &base64);
+   EXPORT std::string base64_encode(const void *ptr, std::size_t size);
+   EXPORT std::string base64_encode(const std::vector<std::uint8_t> &data);
+   EXPORT std::vector<std::uint8_t> base64_decode(const std::string &data);
 }
 
 #endif
