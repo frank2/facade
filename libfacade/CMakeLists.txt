@@ -49,7 +49,13 @@ target_include_directories(libfacade PUBLIC
 )
 
 if (LIBFACADE_BUILD_SHARED)
-  target_link_libraries(libfacade PUBLIC zlib)
+  if (UNIX)
+    target_link_libraries(libfacade PUBLIC z)
+  elseif("$<CONFIG>" STREQUAL "Debug")
+    target_link_libraries(libfacade PUBLIC zlibd)
+  else()
+    target_link_libraries(libfacade PUBLIC zlib)
+  endif()
 else()
   if (ZLIB_FOUND)
     # we should already be compiling with the static option if we found the zlib package.
