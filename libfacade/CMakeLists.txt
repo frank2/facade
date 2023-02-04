@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.24)
 
 project(libfacade CXX)
 
@@ -20,6 +20,7 @@ if (LIBFACADE_BUILD_SHARED)
 else()
   add_compile_definitions(LIBFACADE_STATIC)
   add_library(libfacade STATIC ${HEADER_FILES} ${PROJECT_SOURCE_DIR}/include/facade.hpp ${SRC_FILES})
+  set(ZLIB_USE_STATIC_LIBS "ON")
 endif()
 
 if (UNIX)
@@ -29,7 +30,13 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/lib/zlib-1.2.13) # EXCLUDE_FROM_ALL
+find_package(ZLIB)
+if (${ZLIB_FOUND})
+  message(STATUS "Found zlib.")
+else()
+  message(STATUS "Zlib not found, using our copy instead.")
+  add_subdirectory(${PROJECT_SOURCE_DIR}/lib/zlib-1.2.13) # EXCLUDE_FROM_ALL
+endif()
 
 set_target_properties(libfacade PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -42,7 +49,12 @@ target_include_directories(libfacade PUBLIC
 if (LIBFACADE_BUILD_SHARED)
   target_link_libraries(libfacade PUBLIC zlib)
 else()
-  target_link_libraries(libfacade PUBLIC zlibstatic)
+  if (${ZLIB_FOUND})
+    # we should already be compiling with the static option if we found the zlib package.
+    target_link_libraries(libfacade PUBLIC zlib)
+  else()
+    target_link_libraries(libfacade PUBLIC zlibstatic)
+  endif()
 endif()
 
 install(TARGETS libfacade DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
