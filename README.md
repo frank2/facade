@@ -21,6 +21,8 @@
 
 On top of being able to embed these payloads, the console application is also capable of extracting and detecting these payloads within images.
 
+This readme specifically covers the **binary** release of *facade*. For the **library** portion, see the [library readme](https://github.com/frank2/facade/blob/main/libfacade/README.md).
+
 ## Acquiring
 
 *Facade* uses the [argparse](https://github.com/p-ranav/argparse) library as a Git submodule, so it's not quite as straight-forward as cloning the repository, but it's still easy:
