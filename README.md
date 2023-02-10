@@ -21,7 +21,7 @@
 
 On top of being able to embed these payloads, the console application is also capable of extracting and detecting these payloads within images.
 
-This readme specifically covers the **binary** release of *facade*. For the **library** portion, see the [library readme](https://github.com/frank2/facade/blob/main/libfacade/README.md).
+This readme specifically covers the **binary** release of *facade*. For the **library** portion, see the [library readme](https://github.com/frank2/facade/blob/main/libfacade/README.md) or, better yet, the [library documentation](https://frank2.github.io/docs/libfacade).
 
 ## Acquiring
 
