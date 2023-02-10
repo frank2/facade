@@ -11,4 +11,4 @@ It currently supports the following compilers:
 * gcc/g++, tested on version 10.2.1
 * clang, tested on version 9.0.1
 
-You can read more about *facade*'s capabilities [here](https://github.com/frank2/facade/blob/main/README.md). Documentation is coming soon!
+You can read more about *facade*'s capabilities [here](https://github.com/frank2/facade/blob/main/README.md). Documentation is available [on my github.io page](https://frank2.github.io/docs/libfacade) or [within the repo itself](https://github.com/frank2/facade/blob/main/libfacade/doc).
