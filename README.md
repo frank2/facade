@@ -55,7 +55,7 @@ $ cmake --build ./
 You will most likely want to compile with optimizations to speed up the processing of PNG files. PNG data on large images is very processor-intensive when encoding images. For Windows, you can build a release build this way:
 
 ```
-$ cmake --build --config Release
+$ cmake --build ./ --config Release
 ```
 
 For Unix-based systems, it's a little more complicated, as you have to build the make system with the build type. Do it this way:
