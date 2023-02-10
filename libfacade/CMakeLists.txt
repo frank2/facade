@@ -100,11 +100,23 @@ endif()
 
 if (LIBFACADE_TEST)
   enable_testing()
+
   add_executable(testfacade ${PROJECT_SOURCE_DIR}/test/main.cpp ${PROJECT_SOURCE_DIR}/test/framework.hpp)
-  
   target_link_libraries(testfacade PUBLIC libfacade)
   target_include_directories(testfacade PUBLIC
     "${PROJECT_SOURCE_DIR}/test"
   )
   add_test(NAME testfacade COMMAND testfacade)
+
+  add_executable(payload_creation ${PROJECT_SOURCE_DIR}/example/payload_creation.cpp)
+  target_link_libraries(payload_creation PUBLIC libfacade)
+  add_test(NAME payload_creation COMMAND payload_creation)
+
+  add_executable(payload_extraction ${PROJECT_SOURCE_DIR}/example/payload_extraction.cpp)
+  target_link_libraries(payload_extraction PUBLIC libfacade)
+  add_test(NAME payload_extraction COMMAND payload_extraction)
+
+  add_executable(png_manipulation ${PROJECT_SOURCE_DIR}/example/png_manipulation.cpp)
+  target_link_libraries(png_manipulation PUBLIC libfacade)
+  add_test(NAME png_manipulation COMMAND png_manipulation)
 endif()

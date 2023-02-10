@@ -1,6 +1,13 @@
 #ifndef __FACADE_UTILITY_HPP
 #define __FACADE_UTILITY_HPP
 
+//! @file utility.hpp
+//! @brief Functions relating to the needs of images in the program.
+//!
+//! This file features code related to various functionality of the program, such as PNG's needs for compression
+//! utilities and CRC32 calculation.
+//!
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -14,7 +21,8 @@
 
 namespace facade
 {
-   const std::uint32_t CRC32_TABLE[256] = {
+   /// @brief The table used for calculating a CRC32 value.
+   const std::uint32_t CRC32_TABLE[256] = { 
       0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
       0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
       0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
@@ -81,23 +89,115 @@ namespace facade
       0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
    };
 
+   /// @brief The alphabet of base64 data.
    const std::string BASE64_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "abcdefghijklmnopqrstuvwxyz"
       "0123456789+/";
 
+   /// @brief Swap the endianness of a 16-bit value.
+   ///
+   /// This converts big endian to little endian, or little endian to big endian.
+   ///
+   /// @param value The value whose endianness needs to be swapped.
+   /// @return The 16-bit endian-swapped value.
+   ///
    EXPORT std::uint16_t endian_swap_16(std::uint16_t value);
-   EXPORT std::uint32_t endian_swap_32(std::uint32_t value);
-   EXPORT std::uint32_t crc32(const void *ptr, std::size_t size, std::uint32_t init_crc);
 
+   /// @brief Swap the endianness of a 32-bit value.
+   ///
+   /// This converts big endian to little endian, or little endian to big endian.
+   ///
+   /// @param value The value whose endianness needs to be swapped.
+   /// @return The 32-bit endian-swapped value.
+   ///
+   EXPORT std::uint32_t endian_swap_32(std::uint32_t value);
+
+   /// @brief Calculate the CRC32 value of a given buffer.
+   ///
+   /// @param ptr A pointer to the data whose CRC you wish to calculate.
+   /// @param size The size, in bytes, contained by the data pointer.
+   /// @param init_crc The initial CRC value to use. The default is 0 for an initial value.
+   /// @return The calculated CRC32.
+   ///
+   EXPORT std::uint32_t crc32(const void *ptr, std::size_t size, std::uint32_t init_crc=0);
+
+   /// @brief Compress the given data buffer with the given compression level.
+   ///
+   /// This utilizes [zlib](https://zlib.net)'s deflate algorithm. For more on that, read *zlib*'s documentation.
+   ///
+   /// @param ptr The given data pointer to compress.
+   /// @param size The size, in bytes, of the given data pointer.
+   /// @param level The compression level to pass to the deflate algorithm,
+   ///              see [the zlib manual](https://www.zlib.net/manual.html#Basic) for possible values.
+   /// @return The compressed buffer.
+   /// @throws facade::exception::ZLibError
+   ///
    EXPORT std::vector<std::uint8_t> compress(const void *ptr, std::size_t size, int level);
+   /// @brief Compress the given byte vector with the given compression level.
+   ///
+   /// @param vec The byte vector to compress.
+   /// @param level The compression level to give to *deflate*,
+   ///              see [the zlib manual](https://www.zlib.net/manual.html#Basic) for possible values.  
+   /// @sa The root compression function: compress(const void *, std::size_t, int)
+   ///
    EXPORT std::vector<std::uint8_t> compress(const std::vector<std::uint8_t> &vec, int level);
+   /// @brief Decompress the given data buffer with [zlib](https://zlib.net)'s inflate algorithm.
+   /// @param ptr The compressed data pointer to decompress.
+   /// @param size The size, in bytes, of the data pointer.
+   /// @return The decompressed buffer.
+   /// @throws facade::exception::ZLibError
+   ///
    EXPORT std::vector<std::uint8_t> decompress(const void *ptr, std::size_t size);
+   /// @brief Decompress the given data vector with [zlib](https://zlib.net)'s inflate algorithm.
+   /// @param vec The compressed data vector.
+   /// @return The decompressed buffer.
+   /// @throws facade::exception::ZLibError
+   /// @sa The root decompress function: decompress(const void *, std::size_t)
+   ///
    EXPORT std::vector<std::uint8_t> decompress(const std::vector<std::uint8_t> &vec);
 
+   /// @brief Determine if the string is a base64 string.
+   /// @param base64 The string of (alleged) base64 data.
+   /// @return Whether or not this string is base64 data.
+   ///
    EXPORT bool is_base64_string(const std::string &base64);
+   /// @brief Base64 encode the given buffer data.
+   /// @param ptr The data buffer to encode.
+   /// @param size The size, in bytes, of the given pointer.
+   /// @return A base64-encoded string.
+   ///
    EXPORT std::string base64_encode(const void *ptr, std::size_t size);
+   /// @brief Base64 encode the given data vector.
+   /// @param data The vector of bytes to encode.
+   /// @return A base64-encoded string.
+   ///
    EXPORT std::string base64_encode(const std::vector<std::uint8_t> &data);
+   /// @brief Base64-decode the given string into a byte vector.
+   /// @param data The base64-encoded string.
+   /// @return The decoded byte buffer.
+   /// @throws facade::exception::InvalidBase64Character
+   ///
    EXPORT std::vector<std::uint8_t> base64_decode(const std::string &data);
+
+   /// @brief Read a file into a byte vector.
+   /// @param filename The given filename to read.
+   /// @return The byte vector representing the file data.
+   /// @throws facade::exception::OpenFileFailure
+   ///
+   EXPORT std::vector<std::uint8_t> read_file(const std::string &filename);
+   /// @brief Write a given buffer to the given filename.
+   /// @param filename The filename to save to.
+   /// @param ptr The data buffer to write.
+   /// @param size The size, in bytes, of the pointed data buffer.
+   /// @throws facade::exception::OpenFileFailure
+   ///
+   EXPORT void write_file(const std::string &filename, const void *ptr, std::size_t size);
+   /// @brief Write a given byte vector to the given filename.
+   /// @param filename The filename to save to.
+   /// @param vec The byte vector to write.
+   /// @throws facade::exception::OpenFileFailure
+   ///
+   EXPORT void write_file(const std::string &filename, const std::vector<std::uint8_t> &vec);
 }
 
 #endif

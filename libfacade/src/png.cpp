@@ -12,10 +12,12 @@ bool ChunkTag::operator==(const ChunkTag &other) const {
 void ChunkTag::set_tag(const std::string tag) {
    if (tag.size() != 4) { throw exception::InvalidChunkTag(); }
 
-   this->set_tag(reinterpret_cast<const std::uint8_t *>(tag.c_str()));
+   this->set_tag(reinterpret_cast<const std::uint8_t *>(tag.c_str()), tag.size());
 }
 
-void ChunkTag::set_tag(const std::uint8_t *tag) {
+void ChunkTag::set_tag(const std::uint8_t *tag, std::size_t size) {
+   if (size != 4) { throw exception::InvalidChunkTag(); }
+   
    std::memcpy(this->_tag, tag, sizeof(std::uint8_t) * 4);
 }
 
@@ -257,7 +259,7 @@ void Header::set_interlace_method(std::uint8_t interlace_method) {
 PixelEnum Header::pixel_type() const {
    switch (this->color_type())
    {
-   case ColorType::Grayscale:
+   case ColorType::GRAYSCALE:
    {
       switch (this->bit_depth())
       {
@@ -281,7 +283,7 @@ PixelEnum Header::pixel_type() const {
       }
    }
 
-   case ColorType::TrueColor:
+   case ColorType::TRUE_COLOR:
    {
       switch (this->bit_depth())
       {
@@ -296,7 +298,7 @@ PixelEnum Header::pixel_type() const {
       }
    }
 
-   case ColorType::Palette:
+   case ColorType::PALETTE:
    {
       switch (this->bit_depth())
       {
@@ -317,7 +319,7 @@ PixelEnum Header::pixel_type() const {
       }
    }
 
-   case ColorType::AlphaGrayscale:
+   case ColorType::ALPHA_GRAYSCALE:
    {
       switch (this->bit_depth())
       {
@@ -332,7 +334,7 @@ PixelEnum Header::pixel_type() const {
       }
    }
 
-   case ColorType::AlphaTrueColor:
+   case ColorType::ALPHA_TRUE_COLOR:
    {
       switch (this->bit_depth())
       {
@@ -474,7 +476,6 @@ void Text::set_text(std::string text) {
 
    this->data().insert(this->data().end(), text.begin(), text.end());
 }
-
 
 std::optional<std::size_t> ZText::null_terminator() const {
    if (this->data().size() == 0) { return std::nullopt; }
@@ -704,25 +705,25 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::reconstruct(std::optional<Scanl
 
          switch (this->filter_type())
          {
-         case FilterType::Sub:
+         case FilterType::SUB:
          {
             curr_ptr[j] = (curr + left) & 0xFF;
             break;
          }
 
-         case FilterType::Up:
+         case FilterType::UP:
          {
             curr_ptr[j] = (curr + prev) & 0xFF;
             break;
          }
 
-         case FilterType::Average:
+         case FilterType::AVERAGE:
          {
             curr_ptr[j] = (curr + (left+prev)/2) & 0xFF;
             break;
          }
 
-         case FilterType::Paeth:
+         case FilterType::PAETH:
          {
             auto paeth = left + prev - prev_left;
             auto paeth_left = std::abs(paeth - left);
@@ -745,7 +746,7 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::reconstruct(std::optional<Scanl
       }
    }
 
-   result.set_filter_type(FilterType::None);
+   result.set_filter_type(FilterType::NONE);
 
    return result;
 }
@@ -756,7 +757,7 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(std::optional<ScanlineBa
 
    for (std::uint8_t i=0; i<5; ++i)
    {
-      auto filtered = this->filter(i, previous);
+      auto filtered = this->filter(static_cast<FilterType>(i), previous);
       //auto raw = pixels_to_raw<PixelType>(filtered.pixel_data());
       auto raw = reinterpret_cast<const std::int8_t *>(filtered.pixel_data().data());
       auto raw_end = filtered.pixel_data().size() * sizeof(PixelType);
@@ -778,12 +779,12 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(std::optional<ScanlineBa
 }
 
 template <typename PixelType>
-ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(std::uint8_t filter_type, std::optional<ScanlineBase<PixelType>> previous) const
+ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(FilterType filter_type, std::optional<ScanlineBase<PixelType>> previous) const
 {
    if (this->filter_type() != 0) { throw exception::AlreadyFiltered(); }
    if (previous.has_value() && previous->_pixel_data.size() != this->_pixel_data.size()) { throw exception::ScanlineMismatch(); }
    if (this->_pixel_data.size() == 0) { throw exception::NoPixels(); }
-   if (filter_type == FilterType::None) { return *this; }
+   if (filter_type == FilterType::NONE) { return *this; }
 
    auto result = *this;
    std::size_t pixel_size = sizeof(Span);
@@ -807,26 +808,25 @@ ScanlineBase<PixelType> ScanlineBase<PixelType>::filter(std::uint8_t filter_type
 
          switch (filter_type)
          {
-         case FilterType::Sub:
+         case FilterType::SUB:
          {
             res_ptr[j] = (curr - left) & 0xFF;
-            //if (curr_ptr[j] > (curr - left)) { std::cout << "Overflow at byte " << i << ": " << curr << ", " << left << ", " << static_cast<int>(curr_ptr[j]) << std::endl; throw std::runtime_error("Sub filter overflowed"); }
             break;
          }
 
-         case FilterType::Up:
+         case FilterType::UP:
          {
             res_ptr[j] = (curr - prev) & 0xFF;
             break;
          }
 
-         case FilterType::Average:
+         case FilterType::AVERAGE:
          {
             res_ptr[j] = (curr - (left+prev)/2) & 0xFF;
             break;
          }
 
-         case FilterType::Paeth:
+         case FilterType::PAETH:
          {
             auto paeth = left + prev - prev_left;
             auto paeth_left = std::abs(paeth - left);
@@ -901,15 +901,22 @@ std::vector<ChunkVec> Image::get_chunks(const std::string &tag) const {
    return this->chunk_map.at(tag);
 }
 
-void Image::add_chunk(const std::string &tag, const ChunkVec &chunk) {
+void Image::add_chunk(const ChunkVec &chunk) {
+   auto tag = chunk.tag().to_string();
    this->chunk_map[tag].push_back(chunk);
 }
 
 bool Image::has_trailing_data() const { return this->trailing_data.has_value(); }
 
-std::vector<std::uint8_t> &Image::get_trailing_data() { return *this->trailing_data; }
+std::vector<std::uint8_t> &Image::get_trailing_data() {
+   if (!this->trailing_data.has_value()) { throw exception::NoTrailingData(); }
+   return *this->trailing_data;
+}
 
-const std::vector<std::uint8_t> &Image::get_trailing_data() const { return *this->trailing_data; }
+const std::vector<std::uint8_t> &Image::get_trailing_data() const {
+   if (!this->trailing_data.has_value()) { throw exception::NoTrailingData(); }
+   return *this->trailing_data;
+}
 
 void Image::set_trailing_data(const std::vector<std::uint8_t> &data) {
    this->trailing_data = data;
@@ -954,15 +961,8 @@ void Image::parse(const std::vector<std::uint8_t> &data, bool validate) {
 }
 
 void Image::parse(const std::string &filename, bool validate) {
-   std::ifstream fp(filename, std::ios::binary); // | std::ios::ate);
-   if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
-
-   auto vec_data = std::vector<std::uint8_t>();
-   vec_data.insert(vec_data.end(),
-                   std::istreambuf_iterator<char>(fp),
-                   std::istreambuf_iterator<char>());
-
-   this->parse(vec_data, validate);
+   auto file_data = read_file(filename);
+   this->parse(file_data, validate);
 }
 
 void Image::load() {
@@ -1002,9 +1002,21 @@ const Header &Image::header() const {
 
 Header &Image::new_header() {
    this->chunk_map["IHDR"].clear();
-   this->add_chunk("IHDR", Header().as_chunk_vec());
+   this->add_chunk(Header().as_chunk_vec());
 
    return this->header();
+}
+
+std::size_t Image::width() const {
+   auto &hdr = this->header();
+
+   return hdr.width();
+}
+
+std::size_t Image::height() const {
+   auto &hdr = this->header();
+
+   return hdr.height();
 }
 
 bool Image::has_image_data() const {
@@ -1468,14 +1480,7 @@ std::vector<std::uint8_t> Image::to_file() const
 void Image::save(const std::string &filename) const
 {
    auto data = this->to_file();
-   
-   std::ofstream outfile(filename, std::ios::binary);
-   if (!outfile) { throw exception::OpenFileFailure(filename); }
-
-   outfile.write(reinterpret_cast<char *>(data.data()), data.size());
-   if (!outfile) { perror(filename.c_str()); std::cout << "FUCK" << std::endl; throw exception::OpenFileFailure(filename); }
-   
-   outfile.close();
+   write_file(filename, data);
 }
 
 bool Image::has_text() const {
@@ -1483,7 +1488,7 @@ bool Image::has_text() const {
 }
 
 Text &Image::add_text(const std::string &keyword, const std::string &text) {
-   this->add_chunk("tEXt", Text(keyword, text).as_chunk_vec());
+   this->add_chunk(Text(keyword, text).as_chunk_vec());
 
    return this->chunk_map["tEXt"].back().upcast<Text>();
 }
@@ -1524,7 +1529,7 @@ bool Image::has_ztext() const {
 }
 
 ZText &Image::add_ztext(const std::string &keyword, const std::string &text) {
-   this->add_chunk("zTXt", ZText(keyword, text).as_chunk_vec());
+   this->add_chunk(ZText(keyword, text).as_chunk_vec());
 
    return this->chunk_map["zTXt"].back().upcast<ZText>();
 }
