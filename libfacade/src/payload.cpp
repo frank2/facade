@@ -74,6 +74,7 @@ std::vector<std::vector<std::uint8_t>> PNGPayload::extract_ztext_payloads(const 
 
 std::vector<std::uint8_t> PNGPayload::read_stego_data(std::size_t bit_offset, std::size_t size) const {
    if (!this->is_loaded()) { throw exception::NoImageData(); }
+   if (bit_offset % 4 != 0) { throw exception::InvalidBitOffset(bit_offset); }
 
    auto &header = this->header();
    auto max_size = (header.width() * header.height() * 3 * 4);
@@ -141,6 +142,7 @@ std::vector<std::uint8_t> PNGPayload::read_stego_data(std::size_t bit_offset, st
 void PNGPayload::write_stego_data(const void *ptr, std::size_t size, std::size_t bit_offset)
 {
    if (!this->is_loaded()) { throw exception::NoImageData(); }
+   if (bit_offset % 4 != 0) { throw exception::InvalidBitOffset(bit_offset); }
 
    auto &header = this->header();
    auto max_size = (header.width() * header.height() * 3 * 4);

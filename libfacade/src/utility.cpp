@@ -212,3 +212,29 @@ std::vector<std::uint8_t> facade::base64_decode(const std::string &data) {
 
    return ret;
 }
+
+std::vector<std::uint8_t> facade::read_file(const std::string &filename)
+{
+   std::ifstream fp(filename, std::ios::binary);
+   if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
+   
+   auto vec_data = std::vector<std::uint8_t>();
+   vec_data.insert(vec_data.end(),
+                   std::istreambuf_iterator<char>(fp),
+                   std::istreambuf_iterator<char>());
+
+   return vec_data;
+}
+
+void facade::write_file(const std::string &filename, const void *ptr, std::size_t size)
+{
+   std::basic_ofstream<char> fp(filename, std::ios::binary);
+   if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
+
+   fp.write(reinterpret_cast<const char *>(ptr), size);
+   fp.close();
+}
+
+void facade::write_file(const std::string &filename, const std::vector<std::uint8_t> &vec) {
+   write_file(filename, vec.data(), vec.size());
+}
