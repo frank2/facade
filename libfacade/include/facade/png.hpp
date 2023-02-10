@@ -1231,6 +1231,8 @@ namespace png
                                         AlphaTrueColorScanline8Bit,
                                         AlphaTrueColorScanline16Bit>;
 
+   /// @brief A wrapper object for ScanlineVariant.
+   ///
    class
    EXPORT
    Scanline : public ScanlineVariant
@@ -1293,7 +1295,9 @@ namespace png
    };
 
    /// @brief A class for loading and manipulating PNG images.
-   /// @example png_manipulation.cpp
+   ///
+   /// Here is an example of how to use this class object in particular:
+   /// @include png_manipulation.cpp
    ///
    class
    EXPORT
