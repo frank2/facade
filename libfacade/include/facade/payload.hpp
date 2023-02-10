@@ -3,6 +3,7 @@
 
 //! @file payload.hpp
 //! @brief Payload functionality as it relates to images.
+//! @sa facade::PNGPayload
 //!
 
 #include <facade/png.hpp>
@@ -10,6 +11,19 @@
 namespace facade
 {
    /// @brief A PNG-based payload helper class.
+   ///
+   /// There are four main ways to add payloads to images:
+   /// * **Trailing data**: data appended to the very end of a PNG image. This is the "quick and dirty" solution to adding arbitrary
+   ///                      payload data to a PNG image. See facade::png::Image::set_trailing_data.
+   /// * **tEXt section**: a `tEXt` chunk with base64-encoded binary data. See facade::PNGPayload::add_text_payload.
+   /// * **zTXt section**: a `zTXt` chunk where the base64-encoded data is compressed. See facade::PNGPayload::add_ztext_payload.
+   /// * **Steganography**: a steganographic payload across the raw PNG image data. See facade::PNGPayload::create_stego_payload.
+   ///
+   /// Here is an example of encoding payloads into a PNG image:
+   /// @include payload_creation.cpp
+   ///
+   /// And here is an example of extracting payloads from a PNG image:
+   /// @include payload_extraction.cpp
    ///
    class
    EXPORT

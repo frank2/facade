@@ -306,7 +306,68 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A PNG-based payload helper class. </p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<p>There are four main ways to add payloads to images:</p><ul>
+<li><b>Trailing data</b>: data appended to the very end of a PNG image. This is the "quick and dirty" solution to adding arbitrary payload data to a PNG image. See <a class="el" href="../../dd/d79/classfacade_1_1png_1_1_image.html#a2667d06f6eaa5c3773e858b4dc2a8e11" title="Set the trailing data of the PNG image.">facade::png::Image::set_trailing_data</a>.</li>
+<li><b>tEXt section</b>: a <code>tEXt</code> chunk with base64-encoded binary data. See <a class="el" href="../../d0/d17/classfacade_1_1_p_n_g_payload.html#a4bd3045e68cb67e7f2d0cb3eaeb28699" title="Add a tEXt section payload to the PNG file.">facade::PNGPayload::add_text_payload</a>.</li>
+<li><b>zTXt section</b>: a <code>zTXt</code> chunk where the base64-encoded data is compressed. See <a class="el" href="../../d0/d17/classfacade_1_1_p_n_g_payload.html#a57dac252746b3eb4c17776aa0cc70249" title="Add a zTXt section payload to the PNG file.">facade::PNGPayload::add_ztext_payload</a>.</li>
+<li><b>Steganography</b>: a steganographic payload across the raw PNG image data. See <a class="el" href="../../d0/d17/classfacade_1_1_p_n_g_payload.html#abc56bb1625291dabf1140896b6a3f274" title="Create a copy of the payload with a steganographically-encoded payload within the image data.">facade::PNGPayload::create_stego_payload</a>.</li>
+</ul>
+<p>Here is an example of encoding payloads into a PNG image: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="../../d8/d42/facade_8hpp.html">facade.hpp</a>&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">using namespace </span><a class="code hl_namespace" href="../../d7/d6f/namespacefacade.html">facade</a>;</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]) {</div>
+<div class="line">   <a class="code hl_class" href="../../d0/d17/classfacade_1_1_p_n_g_payload.html">PNGPayload</a> image(<span class="stringliteral">&quot;../test/art.png&quot;</span>);</div>
+<div class="line">   std::string payload_string(<span class="stringliteral">&quot;Just an arbitrary payload, nothing suspicious here!&quot;</span>);</div>
+<div class="line">   std::vector&lt;std::uint8_t&gt; payload_data(payload_string.begin(), payload_string.end());</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// we can add a payload to the end of the file</span></div>
+<div class="line">   image.set_trailing_data(payload_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// or a text section</span></div>
+<div class="line">   image.add_text_payload(<span class="stringliteral">&quot;tEXt payload&quot;</span>, payload_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// or a ztxt section</span></div>
+<div class="line">   image.add_ztext_payload(<span class="stringliteral">&quot;zTXt payload&quot;</span>, payload_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// or a stego-encoded payload</span></div>
+<div class="line">   <span class="keyword">auto</span> final_payload = image.create_stego_payload(payload_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// finally, we can save our payload to a new file.</span></div>
+<div class="line">   final_payload.save(<span class="stringliteral">&quot;art.payload.png&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line">   <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+<div class="line">   </div>
+<div class="ttc" id="aclassfacade_1_1_p_n_g_payload_html"><div class="ttname"><a href="../../d0/d17/classfacade_1_1_p_n_g_payload.html">facade::PNGPayload</a></div><div class="ttdoc">A PNG-based payload helper class.</div><div class="ttdef"><b>Definition:</b> payload.hpp:31</div></div>
+<div class="ttc" id="afacade_8hpp_html"><div class="ttname"><a href="../../d8/d42/facade_8hpp.html">facade.hpp</a></div></div>
+<div class="ttc" id="anamespacefacade_html"><div class="ttname"><a href="../../d7/d6f/namespacefacade.html">facade</a></div><div class="ttdef"><b>Definition:</b> exception.hpp:14</div></div>
+</div><!-- fragment --><p>And here is an example of extracting payloads from a PNG image: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="../../d8/d42/facade_8hpp.html">facade.hpp</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cassert&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">using namespace </span><a class="code hl_namespace" href="../../d7/d6f/namespacefacade.html">facade</a>;</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[]) {</div>
+<div class="line">   <a class="code hl_class" href="../../d0/d17/classfacade_1_1_p_n_g_payload.html">PNGPayload</a> image(<span class="stringliteral">&quot;art.payload.png&quot;</span>);</div>
+<div class="line">   std::string expected_string(<span class="stringliteral">&quot;Just an arbitrary payload, nothing suspicious here!&quot;</span>);</div>
+<div class="line">   std::vector&lt;std::uint8_t&gt; expected_data(expected_string.begin(), expected_string.end());</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// we can then extract the payload from the end of the file</span></div>
+<div class="line">   assert(image.get_trailing_data() == expected_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// or the text section</span></div>
+<div class="line">   assert(image.extract_text_payloads(<span class="stringliteral">&quot;tEXt payload&quot;</span>)[0] == expected_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// or the ztxt section</span></div>
+<div class="line">   assert(image.extract_ztext_payload(<span class="stringliteral">&quot;zTXt payload&quot;</span>)[0] == expected_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="comment">// in order to get stego data, we need to load the image first, THEN extract it</span></div>
+<div class="line">   image.load();</div>
+<div class="line">   assert(image.extract_stego_payload() == expected_data);</div>
+<div class="line"> </div>
+<div class="line">   <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="af46cee12cfc4b3b3173b64ef55326e8e" name="af46cee12cfc4b3b3173b64ef55326e8e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af46cee12cfc4b3b3173b64ef55326e8e">&#9670;&#160;</a></span>PNGPayload() <span class="overload">[1/3]</span></h2>
 
