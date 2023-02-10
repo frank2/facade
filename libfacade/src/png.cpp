@@ -463,7 +463,7 @@ void Text::set_keyword(std::string keyword, bool validate) {
 bool Text::has_text() const {
    auto zero = this->null_terminator();
 
-   return zero.has_value() && this->data().size() > *zero+1 || !zero.has_value() && this->data().size() > 0;
+   return (zero.has_value() && this->data().size() > *zero+1) || (!zero.has_value() && this->data().size() > 0);
 }
 
 std::string Text::text() const {
@@ -546,7 +546,7 @@ void ZText::set_compression_method(std::uint8_t compression_method) {
 bool ZText::has_text() const {
    auto zero = this->null_terminator();
 
-   return zero.has_value() && this->data().size() > *zero+2 || !zero.has_value() && this->data().size() > 0;
+   return (zero.has_value() && this->data().size() > *zero+2) || (!zero.has_value() && this->data().size() > 0);
 }
 
 std::string ZText::text() const {
