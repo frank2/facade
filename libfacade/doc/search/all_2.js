@@ -1,0 +1,16 @@
+var searchData=
+[
+  ['badcrc_0',['BadCRC',['../d0/d7e/classfacade_1_1exception_1_1_bad_c_r_c.html#a8e4002044886406ae85c53902f3e9a76',1,'facade::exception::BadCRC::BadCRC()'],['../d0/d7e/classfacade_1_1exception_1_1_bad_c_r_c.html',1,'facade::exception::BadCRC']]],
+  ['badpngsignature_1',['BadPNGSignature',['../d2/d87/classfacade_1_1exception_1_1_bad_p_n_g_signature.html#a26c321db84daa8cc626d2793feb54054',1,'facade::exception::BadPNGSignature::BadPNGSignature()'],['../d2/d87/classfacade_1_1exception_1_1_bad_p_n_g_signature.html',1,'facade::exception::BadPNGSignature']]],
+  ['base_2',['Base',['../de/d83/classfacade_1_1png_1_1_sample.html#af3cb2129cb1ed7a5e80ffe44b409b32c',1,'facade::png::Sample::Base()'],['../dd/d68/classfacade_1_1png_1_1_true_color_pixel.html#a4972bb5293304704a72fd4ff3b824497',1,'facade::png::TrueColorPixel::Base()'],['../db/d5d/classfacade_1_1png_1_1_alpha_grayscale_pixel.html#ae55ca1a5b209dd60d715562e53a2a6ce',1,'facade::png::AlphaGrayscalePixel::Base()']]],
+  ['base64_5falpha_3',['BASE64_ALPHA',['../d7/d6f/namespacefacade.html#aa47829f8908109fb21b3f5ca8a564d4e',1,'facade']]],
+  ['base64_5fdecode_4',['base64_decode',['../d7/d6f/namespacefacade.html#acf284163eb13f87a736e510376d2106f',1,'facade']]],
+  ['base64_5fencode_5',['base64_encode',['../d7/d6f/namespacefacade.html#a01b4ce81d983b4864ab1a7a187670195',1,'facade::base64_encode(const void *ptr, std::size_t size)'],['../d7/d6f/namespacefacade.html#afe2fa59a1ff46fd235e05d11fada256c',1,'facade::base64_encode(const std::vector&lt; std::uint8_t &gt; &amp;data)']]],
+  ['bit_5fdepth_6',['bit_depth',['../d1/dda/classfacade_1_1exception_1_1_invalid_bit_depth.html#aa511d36268689a2b2d784b47dc564352',1,'facade::exception::InvalidBitDepth::bit_depth()'],['../d5/dc7/classfacade_1_1png_1_1_header.html#a4ccf0dcee20146ab3ae254bf7be2f914',1,'facade::png::Header::bit_depth()']]],
+  ['bits_7',['Bits',['../de/d83/classfacade_1_1png_1_1_sample.html#a84407f304366e35c4c420982f6b2ab14',1,'facade::png::Sample::Bits()'],['../dd/d68/classfacade_1_1png_1_1_true_color_pixel.html#a6802cd39c81757dd00e344eb3299e28a',1,'facade::png::TrueColorPixel::Bits()'],['../db/d5d/classfacade_1_1png_1_1_alpha_grayscale_pixel.html#a0dadb2d10446e3a1a9a4807404c4cb8b',1,'facade::png::AlphaGrayscalePixel::Bits()'],['../d9/df5/classfacade_1_1png_1_1_alpha_true_color_pixel.html#a9f25e01917a4210fa696a8f39ba9527a',1,'facade::png::AlphaTrueColorPixel::Bits()']]],
+  ['bits_8',['bits',['../dc/d87/classfacade_1_1png_1_1_pixel_span.html#a5a60eec38b104588474433eb6ea693fe',1,'facade::png::PixelSpan']]],
+  ['blue_9',['blue',['../dd/d68/classfacade_1_1png_1_1_true_color_pixel.html#a0d9b285e41d6d8086367620317956984',1,'facade::png::TrueColorPixel::blue()'],['../dd/d68/classfacade_1_1png_1_1_true_color_pixel.html#a39e1b1914f37ca5305437e4720428163',1,'facade::png::TrueColorPixel::blue() const']]],
+  ['boundary_10',['boundary',['../d3/db9/classfacade_1_1exception_1_1_out_of_bounds.html#a2bd4003391d54ab855c9746918ea47e9',1,'facade::exception::OutOfBounds']]],
+  ['buffer_5fsize_11',['buffer_size',['../d5/dc7/classfacade_1_1png_1_1_header.html#a4a01df9f9cff650e9d9fc03cc6fdf448',1,'facade::png::Header']]],
+  ['bytes_12',['bytes',['../dc/d87/classfacade_1_1png_1_1_pixel_span.html#a414236e02bf5a9d0b9c24023cdbfe37f',1,'facade::png::PixelSpan']]]
+];
