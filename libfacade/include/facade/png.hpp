@@ -1322,6 +1322,9 @@ namespace png
       Image(const std::string &filename, bool validate=true) { this->parse(filename, validate); }
       Image(const Image &other) : chunk_map(other.chunk_map), trailing_data(other.trailing_data), image_data(other.image_data) {}
 
+      /// @brief Syntatic sugar for assigning to an image object.
+      Image &operator=(const Image &other);
+
       /// @brief Syntactic sugar for getting a scanline from the loaded image.
       /// @sa facade::png::Image::scanline
       ///

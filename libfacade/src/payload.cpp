@@ -268,3 +268,58 @@ std::vector<std::uint8_t> PNGPayload::extract_stego_payload() const {
 
    return facade::decompress(this->read_stego_data(7*8, size_val));
 }
+
+ICOPayload &ICOPayload::operator=(const ICOPayload &other) {
+   this->_index = other._index;
+   this->_payload = other._payload;
+   ico::Icon::operator=(other);
+
+   return *this;
+}
+
+PNGPayload *ICOPayload::operator->(void) {
+   return &this->png_payload();
+}
+
+PNGPayload &ICOPayload::operator*(void) {
+   return this->png_payload();
+}
+
+PNGPayload &ICOPayload::png_payload(void) {
+   if (!this->_payload.has_value())
+      throw exception::NoPNGIcon();
+
+   return *this->_payload;
+}
+
+const PNGPayload &ICOPayload::png_payload(void) const {
+   if (!this->_payload.has_value())
+      throw exception::NoPNGIcon();
+
+   return *this->_payload;
+}
+
+void ICOPayload::find_png(void) {
+   for (std::size_t i=0; i<this->size(); ++i)
+   {
+      if (this->entry_type(i) != ico::Icon::EntryType::ENTRY_PNG)
+         continue;
+      
+      this->_index = i;
+      this->_payload = PNGPayload(this->get_entry(i).second);
+      return;
+   }
+
+   throw exception::NoPNGIcon();
+}
+
+void ICOPayload::reset_png(void) {
+   this->_payload = PNGPayload(this->get_entry(*this->_index).second);
+}
+
+void ICOPayload::set_png(void) {
+   if (!this->_index.has_value() || !this->_payload.has_value())
+      throw exception::NoPNGIcon();
+   
+   this->set_entry(*this->_index, this->get_entry(*this->_index).first, this->_payload->to_file());
+}

@@ -438,5 +438,26 @@ namespace exception
    public:
       NoTrailingData() : Exception("No trailing data: the image has no trailing data.") {}
    };
+
+   /// @brief An exception thrown when encountering an invalid icon file.
+   class InvalidIconHeader : public Exception
+   {
+   public:
+      InvalidIconHeader() : Exception("Invalid icon header: the data does not represent a valid icon file.") {}
+   };
+
+   /// @brief An exception thrown when encountering no image data within an icon object.
+   class NoIconData : public Exception
+   {
+   public:
+      NoIconData() : Exception("No icon data: there is no image data present in the icon object.") {}
+   };
+
+   /// @brief An exception thrown when no PNG image is present in icon data.
+   class NoPNGIcon : public Exception
+   {
+   public:
+      NoPNGIcon() : Exception("No PNG icon: the given icon file does not have a PNG section present.") {}
+   };
 }}
 #endif

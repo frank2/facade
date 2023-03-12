@@ -7,6 +7,7 @@
 //!
 
 #include <facade/png.hpp>
+#include <facade/ico.hpp>
 
 namespace facade
 {
@@ -31,6 +32,8 @@ namespace facade
    {
    public:
       PNGPayload() : png::Image() {}
+      PNGPayload(const void *ptr, std::size_t size) : png::Image(ptr, size) {}
+      PNGPayload(const std::vector<std::uint8_t> &vec) : png::Image(vec) {}
       PNGPayload(const std::string &filename) : png::Image(filename) {}
       PNGPayload(const PNGPayload &other) : png::Image(other) {}
 
@@ -39,12 +42,13 @@ namespace facade
       /// The same keyword can be added multiple times.
       ///
       /// @param keyword The keyword to give to the `tEXt` section payload.
-      /// @param ptr The given data pointer.
-      /// @param size The size of the data pointer, in bytes.
+      /// @param ptr The pointer of data to add to the payload.
+      /// @param size The size of the given data.
       /// @return A facade::png::Text object representing the newly added section to the PNG image.
       /// @sa facade::png::Text
       ///
       png::Text &add_text_payload(const std::string &keyword, const void *ptr, std::size_t size);
+
       /// @brief Add a `tEXt` section payload to the PNG file.
       ///
       /// The same keyword can be added multiple times.
@@ -88,6 +92,7 @@ namespace facade
       /// @sa facade::png::ZText
       ///
       png::ZText &add_ztext_payload(const std::string &keyword, const void *ptr, std::size_t size);
+
       /// @brief Add a `zTXt` section payload to the PNG file.
       ///
       /// The same keyword can be added multiple times.
@@ -187,6 +192,32 @@ namespace facade
       /// @throws facade::exception::NoStegoData
       ///
       std::vector<std::uint8_t> extract_stego_payload() const;
+   };
+
+   class
+   EXPORT
+   ICOPayload : public ico::Icon
+   {
+      std::optional<std::size_t> _index;
+      std::optional<PNGPayload> _payload;
+      
+   public:
+      ICOPayload() : ico::Icon() {}
+      ICOPayload(const void *ptr, std::size_t size) : ico::Icon(ptr, size) { this->find_png(); }
+      ICOPayload(const std::vector<std::uint8_t> &vec) : ico::Icon(vec) { this->find_png(); }
+      ICOPayload(const std::string &filename) : ico::Icon(filename) { this->find_png(); }
+      ICOPayload(const ICOPayload &other) : _index(other._index), _payload(other._payload), ico::Icon(other) {}
+
+      ICOPayload &operator=(const ICOPayload &other);
+      PNGPayload *operator->(void);
+      PNGPayload &operator*(void);
+
+      PNGPayload &png_payload(void);
+      const PNGPayload &png_payload(void) const;
+      
+      void find_png(void);
+      void reset_png(void);
+      void set_png(void);
    };
 }
 

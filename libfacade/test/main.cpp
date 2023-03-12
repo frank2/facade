@@ -247,6 +247,42 @@ test_payload()
 }
 
 int
+test_ico
+(void)
+{
+   INIT();
+
+   ico::Icon icon;
+   ASSERT_SUCCESS(icon = ico::Icon("../test/test.ico"));
+   ASSERT(icon.size() == 10);
+   ASSERT(icon.entry_type(0) == ico::Icon::EntryType::ENTRY_PNG);
+   ASSERT(icon.entry_type(1) == ico::Icon::EntryType::ENTRY_BMP);
+
+   ICOPayload payload;
+   ASSERT_SUCCESS(payload = ICOPayload("../test/test.ico"));
+
+   std::string test_string("A small payload to verify payloads can persist in an icon.");
+   std::vector<std::uint8_t> test_data(test_string.begin(), test_string.end());
+
+   ASSERT_SUCCESS(payload->set_trailing_data(test_data));
+   ASSERT_SUCCESS(payload->add_text_payload("tEXt test", test_data));
+   ASSERT_SUCCESS(payload->add_ztext_payload("zTXt test", test_data));
+   ASSERT_SUCCESS(payload->load());
+   ASSERT_SUCCESS(payload.png_payload() = payload->create_stego_payload(test_data));
+   ASSERT_SUCCESS(payload.set_png());
+   ASSERT_SUCCESS(payload.save("payload.ico"));
+
+   ASSERT_SUCCESS(payload = ICOPayload("payload.ico"));
+   ASSERT(payload->get_trailing_data() == test_data);
+   ASSERT(payload->extract_text_payloads("tEXt test")[0] == test_data);
+   ASSERT(payload->extract_ztext_payloads("zTXt test")[0] == test_data);
+   ASSERT_SUCCESS(payload->load());
+   ASSERT(payload->extract_stego_payload() == test_data);
+   
+   COMPLETE();
+}
+
+int
 main
 (int argc, char *argv[])
 {
@@ -260,6 +296,9 @@ main
 
    LOG_INFO("Testing binary payloads in PNG images.");
    PROCESS_RESULT(test_payload);
+
+   LOG_INFO("Testing parsing and payloading icons.");
+   PROCESS_RESULT(test_ico);
 
    COMPLETE();
 }

@@ -883,6 +883,14 @@ void Scanline::set_pixel(const Pixel &pixel, std::size_t index) {
 std::vector<std::uint8_t> Scanline::to_raw() const {
    return std::visit([](auto &p) -> std::vector<std::uint8_t> { return p.to_raw(); }, *static_cast<const ScanlineVariant *>(this));
 }
+
+Image &Image::operator=(const Image &other) {
+   this->chunk_map = other.chunk_map;
+   this->trailing_data = other.trailing_data;
+   this->image_data = other.image_data;
+
+   return *this;
+}
             
 Scanline &Image::operator[](std::size_t index) {
    return this->scanline(index);
