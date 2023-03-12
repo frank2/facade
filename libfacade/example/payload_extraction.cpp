@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
    assert(image.extract_text_payloads("tEXt payload")[0] == expected_data);
 
    // or the ztxt section
-   assert(image.extract_ztext_payload("zTXt payload")[0] == expected_data);
+   assert(image.extract_ztext_payloads("zTXt payload")[0] == expected_data);
 
    // in order to get stego data, we need to load the image first, THEN extract it
    image.load();
