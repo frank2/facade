@@ -78,28 +78,6 @@ void status_error(const Args&... args) {
    status(Status::ERR, args...);
 }
 
-std::vector<std::uint8_t> read_file(const std::string &filename)
-{
-   std::ifstream fp(filename, std::ios::binary);
-   if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
-   
-   auto vec_data = std::vector<std::uint8_t>();
-   vec_data.insert(vec_data.end(),
-                   std::istreambuf_iterator<char>(fp),
-                   std::istreambuf_iterator<char>());
-
-   return vec_data;
-}
-
-void write_file(const std::string &filename, const std::vector<std::uint8_t> data)
-{
-   std::basic_ofstream<char> fp(filename, std::ios::binary);
-   if (!fp.is_open()) { throw exception::OpenFileFailure(filename); }
-
-   fp.write(reinterpret_cast<const char *>(data.data()), data.size());
-   fp.close();
-}
-
 int create_payload(const argparse::ArgumentParser &parser) {
    std::cout << HEADER << std::endl;
 
@@ -120,13 +98,28 @@ int create_payload(const argparse::ArgumentParser &parser) {
       return 1;
    }
 
-   PNGPayload payload;
+   std::variant<PNGPayload, ICOPayload> payload;
+
+   status_normal("Parsing ", input, "...");
 
    try
    {
-      status_normal("Parsing ", input, "...");
       payload = PNGPayload(input);
       status_alert("Image parsed!\n");
+   }
+   catch (exception::BadPNGSignature &bad_png)
+   {
+      try
+      {
+         status_normal("Not a PNG image. Trying to parse as icon with embedded PNG...");
+         payload = ICOPayload(input);
+         status_alert("Icon parsed!");
+      }
+      catch (exception::Exception &exc)
+      {
+         status_error("Failed to load input file: ", exc.error);
+         return 2;
+      }
    }
    catch (exception::Exception &exc)
    {
@@ -152,7 +145,12 @@ int create_payload(const argparse::ArgumentParser &parser) {
       }
 
       status_normal("-> Setting trailing data payload...");
-      payload.set_trailing_data(data);
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         png->set_trailing_data(data);
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         (*ico)->set_trailing_data(data);
+      
       status_alert("Trailing data payload set!\n");
    }
 
@@ -186,7 +184,12 @@ int create_payload(const argparse::ArgumentParser &parser) {
 
          try {
             status_normal("---> Adding payload to \"", input, "\"...");
-            payload.add_text_payload(keyword, data);
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               png->add_text_payload(keyword, data);
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               (*ico)->add_text_payload(keyword, data);
+            
             status_normal("---> Payload added!");
          }
          catch (exception::Exception &exc)
@@ -231,7 +234,12 @@ int create_payload(const argparse::ArgumentParser &parser) {
 
          try {
             status_normal("---> Adding payload to \"", input, "\"...");
-            payload.add_ztext_payload(keyword, data);
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               png->add_ztext_payload(keyword, data);
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               (*ico)->add_ztext_payload(keyword, data);
+            
             status_alert("---> Payload added!");
          }
          catch (exception::Exception &exc)
@@ -267,14 +275,22 @@ int create_payload(const argparse::ArgumentParser &parser) {
       status_normal("-> Creating stego payload...");
       status_normal("-> This may take a moment, depending on the size of the image in pixels.");
 
-      payload = payload.create_stego_payload(data);
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         payload = png->create_stego_payload(data);
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         ico->png_payload() = (*ico)->create_stego_payload(data);
 
       status_alert("Stego payload created!\n");
    }
 
    try {
       status_normal("Saving payload to \"", output, "\"...");
-      payload.save(output);
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         png->save(output);
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         ico->save(output);
+
       status_alert("Payload saved!");
    }
    catch (exception::Exception &exc)
@@ -297,15 +313,32 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
    status_normal("-> input file:       ", input);
    status_normal("-> output directory: ", output, "\n");
 
-   PNGPayload payload;
+   std::variant<PNGPayload, ICOPayload> payload;
 
-   try {
-      status_normal("Loading input ", input, "...");
+   status_normal("Parsing ", input, "...");
+
+   try
+   {
       payload = PNGPayload(input);
-      status_alert("Input parsed!");
+      status_alert("Image parsed!\n");
    }
-   catch (exception::Exception &exc) {
-      status_error("Failed to load input: ", exc.error);
+   catch (exception::BadPNGSignature &bad_png)
+   {
+      try
+      {
+         status_normal("Not a PNG image. Trying to parse as icon with embedded PNG...");
+         payload = ICOPayload(input);
+         status_alert("Icon parsed!");
+      }
+      catch (exception::Exception &exc)
+      {
+         status_error("Failed to load input file: ", exc.error);
+         return 1;
+      }
+   }
+   catch (exception::Exception &exc)
+   {
+      status_error("Failed to load input file: ", exc.error);
       return 1;
    }
 
@@ -327,10 +360,23 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
    {
       status_normal("Searching for trailing data...");
 
-      if (payload.has_trailing_data())
+      bool has_trailing = false;
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         has_trailing = png->has_trailing_data();
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         has_trailing = (*ico)->has_trailing_data();
+
+      if (has_trailing)
       {
          status_alert("Trailing data found!");
-         auto trailing_data = payload.get_trailing_data();
+         std::vector<std::uint8_t> trailing_data;
+         
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            trailing_data = png->get_trailing_data();
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            trailing_data = (*ico)->get_trailing_data();
+         
          status_normal("Trailing data size: ", trailing_data.size());
 
          std::string trailing_filename = output + std::string("/trailing_data.bin");
@@ -360,11 +406,23 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
    {
       if (all_techniques)
       {
-         if (payload.has_chunk("tEXt"))
+         bool has_text = false;
+
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            has_text = png->has_chunk("tEXt");
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            has_text = (*ico)->has_chunk("tEXt");
+         
+         if (has_text)
          {
             status_normal("Scanning tEXt sections for possible payloads...");
 
-            auto text_chunks = payload.get_chunks("tEXt");
+            std::vector<png::ChunkVec> text_chunks;
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               text_chunks = png->get_chunks("tEXt");
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               text_chunks = (*ico)->get_chunks("tEXt");
       
             for (auto &chunk : text_chunks)
             {
@@ -413,8 +471,15 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
       }
       else {
          auto keyword = parser.get<std::string>("--text-section-payload");
+         bool has_text = false;
 
-         if (!payload.has_chunk("tEXt")) {
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            has_text = png->has_chunk("tEXt");
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            has_text = (*ico)->has_chunk("tEXt");
+         
+         if (!has_text)
+         {
             status_error("No tEXt sections found in input.");
             return 6;
          }
@@ -423,7 +488,11 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
          
          try {
             status_normal("Attempting to extract payloads with keyword \"", keyword, "\"...");
-            text_payloads = payload.extract_text_payloads(keyword);
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               text_payloads = png->extract_text_payloads(keyword);
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               text_payloads = (*ico)->extract_text_payloads(keyword);
 
             if (text_payloads.size() == 0) {
                status_error("No payloads found.");
@@ -466,11 +535,23 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
    {
       if (all_techniques)
       {
-         if (payload.has_chunk("zTXt"))
+         bool has_text = false;
+
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            has_text = png->has_chunk("zTXt");
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            has_text = (*ico)->has_chunk("zTXt");
+         
+         if (has_text)
          {
             status_normal("Scanning zTXt sections for possible payloads...");
 
-            auto text_chunks = payload.get_chunks("zTXt");
+            std::vector<png::ChunkVec> text_chunks;
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               text_chunks = png->get_chunks("zTXt");
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               text_chunks = (*ico)->get_chunks("zTXt");
       
             for (auto &chunk : text_chunks)
             {
@@ -530,8 +611,14 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
       }
       else {
          auto keyword = parser.get<std::string>("--ztxt-section-payload");
+         bool has_text = false;
 
-         if (!payload.has_chunk("zTXt")) {
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            has_text = png->has_chunk("zTXt");
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            has_text = (*ico)->has_chunk("zTXt");
+
+         if (!has_text) {
             status_error("No zTXt sections found in input.");
             return 12;
          }
@@ -540,7 +627,11 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
          
          try {
             status_normal("Attempting to extract payloads with keyword \"", keyword, "\"...");
-            text_payloads = payload.extract_ztext_payloads(keyword);
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               text_payloads = png->extract_ztext_payloads(keyword);
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               text_payloads = (*ico)->extract_ztext_payloads(keyword);
 
             if (text_payloads.size() == 0) {
                status_error("No payloads found.");
@@ -583,7 +674,12 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
    {
       try {
          status_normal("Loading input to check for stego data...");
-         payload.load();
+
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            png->load();
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            (*ico)->load();
+
          status_normal("Input loaded.");
       }
       catch (exception::Exception &exc)
@@ -592,14 +688,26 @@ int extract_payloads(const argparse::ArgumentParser &parser) {
          return 16;
       }
 
-      if (payload.has_stego_payload()) {
+      bool has_stego = false;
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         has_stego = png->has_stego_payload();
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         has_stego = (*ico)->has_stego_payload();
+
+      if (has_stego) {
          status_alert("Found stego payload!");
 
          std::vector<std::uint8_t> stego_data;
 
          try {
             status_normal("Attempting to decode stego data...");
-            stego_data = payload.extract_stego_payload();
+
+            if (auto png = std::get_if<PNGPayload>(&payload))
+               stego_data = png->extract_stego_payload();
+            else if (auto ico = std::get_if<ICOPayload>(&payload))
+               stego_data = (*ico)->extract_stego_payload();
+            
             status_alert("Payload extracted!");
          }
          catch (exception::Exception &exc) {
@@ -659,15 +767,31 @@ int detect_payloads(const argparse::ArgumentParser &parser) {
          status_normal("Automatically detecting all techniques.");
    }
 
-   PNGPayload payload;
+   std::variant<PNGPayload, ICOPayload> payload;
 
-   try {
+   try
+   {
       if (!minimal) { status_normal("Parsing input file \"", input, "\"..."); }
       payload = PNGPayload(input);
-      if (!minimal) { status_alert("Input parsed!"); }
+      if (!minimal) { status_alert("Image parsed!\n"); }
    }
-   catch (exception::Exception &exc) {
-      if (!minimal) { status_error("Failed to load input: ", exc.error); }
+   catch (exception::BadPNGSignature &bad_png)
+   {
+      try
+      {
+         if (!minimal) { status_normal("Not a PNG image. Trying to parse as icon with embedded PNG...");}
+         payload = ICOPayload(input);
+         if (!minimal) { status_alert("Icon parsed!"); }
+      }
+      catch (exception::Exception &exc)
+      {
+         if (!minimal) { status_error("Failed to load input file: ", exc.error); }
+         return 1;
+      }
+   }
+   catch (exception::Exception &exc)
+   {
+      if (!minimal) { status_error("Failed to load input file: ", exc.error); }
       return 1;
    }
 
@@ -676,8 +800,15 @@ int detect_payloads(const argparse::ArgumentParser &parser) {
    if (auto_detect || parser.is_used("--trailing-data"))
    {
       if (!minimal) { status_normal("Checking for trailing data..."); }
+
+      bool has_trailing = false;
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         has_trailing = png->has_trailing_data();
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         has_trailing = (*ico)->has_trailing_data();
       
-      if (payload.has_trailing_data()) {
+      if (has_trailing) {
          if (!minimal) { status_alert("Trailing data found!\n"); }
          minimal_report.push_back("trailing-data");
       }
@@ -692,13 +823,26 @@ int detect_payloads(const argparse::ArgumentParser &parser) {
 
       if (keyword.size() == 0 && !minimal) { status_normal("tEXt keyword is blank, scanning tEXt sections."); }
 
-      if (!payload.has_chunk("tEXt"))
+      bool has_text = false;
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         has_text = png->has_chunk("tEXt");
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         has_text = (*ico)->has_chunk("tEXt");
+
+      if (!has_text)
       {
          if (!minimal) { status_normal("No tEXt sections present."); }
       }
       else
       {
-         auto text_chunks = payload.get_chunks("tEXt");
+         std::vector<png::ChunkVec> text_chunks;
+
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            text_chunks = png->get_chunks("tEXt");
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            text_chunks = (*ico)->get_chunks("tEXt");
+         
          std::vector<std::string> found_payloads;
 
          for (auto &chunk : text_chunks)
@@ -732,13 +876,26 @@ int detect_payloads(const argparse::ArgumentParser &parser) {
 
       if (keyword.size() == 0 && !minimal) { status_normal("zTXt keyword is blank, scanning zTXt sections."); }
 
-      if (!payload.has_chunk("zTXt"))
+      bool has_text = false;
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         has_text = png->has_chunk("zTXt");
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         has_text = (*ico)->has_chunk("zTXt");
+      
+      if (!has_text)
       {
          if (!minimal) { status_normal("No zTXt sections present."); }
       }
       else
       {
-         auto text_chunks = payload.get_chunks("zTXt");
+         std::vector<png::ChunkVec> text_chunks;
+
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            text_chunks = png->get_chunks("zTXt");
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            text_chunks = (*ico)->get_chunks("zTXt");
+            
          std::vector<std::string> found_payloads;
 
          for (auto &chunk : text_chunks)
@@ -779,7 +936,12 @@ int detect_payloads(const argparse::ArgumentParser &parser) {
 
       try {
          if (!minimal) { status_normal("Loading input to check for stego data..."); }
-         payload.load();
+
+         if (auto png = std::get_if<PNGPayload>(&payload))
+            png->load();
+         else if (auto ico = std::get_if<ICOPayload>(&payload))
+            (*ico)->load();
+         
          if (!minimal) { status_normal("Input loaded!"); }
       }
       catch (exception::Exception &exc) {
@@ -787,7 +949,14 @@ int detect_payloads(const argparse::ArgumentParser &parser) {
          return 3;
       }
 
-      if (payload.has_stego_payload()) {
+      bool has_stego = false;
+
+      if (auto png = std::get_if<PNGPayload>(&payload))
+         has_stego = png->has_stego_payload();
+      else if (auto ico = std::get_if<ICOPayload>(&payload))
+         has_stego = (*ico)->has_stego_payload();
+      
+      if (has_stego) {
          if (!minimal) { status_alert("Stego data present!\n"); }
          minimal_report.push_back("stego");
       }
@@ -818,7 +987,7 @@ int main(int argc, char *argv[])
    setvbuf(stdout, nullptr, _IOFBF, 1000);
    #endif
 
-   argparse::ArgumentParser args("facade", "1.0");
+   argparse::ArgumentParser args("facade", "1.1");
    args.add_description(HEADER "Facade is a tool and library for adding arbitrary payloads to PNG files.");
    
    argparse::ArgumentParser create_args("create");
