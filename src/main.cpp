@@ -289,7 +289,10 @@ int create_payload(const argparse::ArgumentParser &parser) {
       if (auto png = std::get_if<PNGPayload>(&payload))
          png->save(output);
       else if (auto ico = std::get_if<ICOPayload>(&payload))
+      {
+         ico->set_png();
          ico->save(output);
+      }
 
       status_alert("Payload saved!");
    }
