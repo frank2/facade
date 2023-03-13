@@ -267,9 +267,9 @@ namespace exception
       std::size_t given;
 
       /// @brief The maximum value that can be given.
-      std::size_t max;
+      std::size_t max_;
 
-      IntegerOverflow(std::size_t given, std::size_t max) : given(given), max(max), Exception() {
+      IntegerOverflow(std::size_t given, std::size_t max) : given(given), max_(max), Exception() {
          std::stringstream stream;
 
          stream << "Integer overflow: the given number was " << given
