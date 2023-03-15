@@ -12,12 +12,14 @@
   ▀▀▀        ▀▀▀    ▀▀▀ ▀▀▀▀▀▀▀▀▀▀ ▀▀▀    ▀▀▀ ▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀
 ```
 
-**Facade** is a tool and library for embedding, extracting and detecting arbitrary payloads in PNG files. It is currently capable of adding arbitrary payloads to PNG files in the following ways:
+**Facade** is a tool and library for embedding, extracting and detecting arbitrary payloads in PNG files. (In certain cases, icon files too!) It is currently capable of adding arbitrary payloads to PNG and certain icon files in the following ways:
 
 * *Concatenation*: Data can be arbitrarily appended to the end of a PNG file without disrupting the image data. This is the "quick and dirty" solution to adding payload data to a given PNG image, although extraction of the data is just as easy as adding it without the use of this tool.
 * *`tEXt` sections*: A feature of PNG files is **`tEXt` sections**, which is PNG metadata to add arbitrary text to images. Typically, this metadata includes information about, for example, the software used to create the image. *Facade* base64 encodes payloads with a given keyword into these sections in order to still meet the text requirement of these sections. This is ideal if you wish to stick the payload in the PNG chunk data, but can be obvious when viewed in a hex editor.
 * *`zTXt` sections*: On top of a `tEXt` section, PNG images also feature **`zTXt` sections**, which are zlib-compressed `tEXt` sections. These, too, are base64-encoded before compression in order to conform to the text standard. This technique is a little less obvious, as the data is compressed and looks like any other binary data featured in the image (such as an `IDAT` section).
 * *Steganography*: The final technique employed by *facade* is [steganography](https://en.wikipedia.org/wiki/Steganography) in the image data itself. Specifically, it uses the least-significant-bit technique across 4 bits of the color channels to encode arbitrary data into the image. This is much less obvious than the other techniques from a binary image standpoint, but might produce visible noise within your target image. Additionally, unlike the previous techniques, it's limited by the size of the image in pixels, and requires a specific pixel format to work. Luckily, RGB and RGBA are very standard pixel configurations for most PNG images!
+
+You may be wondering how all this applies to icon files. Well, on modern Windows, icon files can have a PNG entry! Meaning we can embed arbitrary payloads in certain icon files as well!
 
 On top of being able to embed these payloads, the console application is also capable of extracting and detecting these payloads within images.
 
