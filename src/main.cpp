@@ -994,18 +994,18 @@ int main(int argc, char *argv[])
    args.add_description(HEADER "Facade is a tool and library for adding arbitrary payloads to PNG files.");
    
    argparse::ArgumentParser create_args("create");
-   create_args.add_description("Create a payload-filled PNG file.");
+   create_args.add_description("Create a payload-filled PNG or ICO file.");
    
    create_args.add_argument("-i", "--input")
-      .help("The input file. This is the PNG file to add a payload to.")
+      .help("The input file. This is the PNG or ICO file to add a payload to.")
       .required();
 
    create_args.add_argument("-o", "--output")
-      .help("The output file. This is the resulting PNG file from the various modifications.")
+      .help("The output file. This is the resulting PNG or ICO file from the various modifications.")
       .required();
 
    create_args.add_argument("-d", "--trailing-data-payload")
-      .help("The filename to set as trailing data to the PNG file. Only one of these can be set.");
+      .help("The filename to set as trailing data to the PNG or ICO file. Only one of these can be set.");
 
    create_args.add_argument("-t", "--text-section-payload")
       .nargs(2)
@@ -1028,7 +1028,7 @@ int main(int argc, char *argv[])
    extract_args.add_description("Retrieve payloads from Facade-encoded PNG files.");
    
    extract_args.add_argument("-i", "--input")
-      .help("The input file. This is the PNG file to extract payloads from.")
+      .help("The input file. This is the PNG or ICO file to extract payloads from.")
       .required();
 
    extract_args.add_argument("-o", "--output")
@@ -1052,12 +1052,12 @@ int main(int argc, char *argv[])
       .help("The keyword of the 'zTXt' payload to extract. One keyword can have multiple payloads associated with it.");
 
    extract_args.add_argument("-s", "--stego-payload")
-      .help("Extract a stegonography-encoded file to the given file.")
+      .help("Extract a stegonography-encoded PNG or ICO image to the given file.")
       .default_value(false)
       .implicit_value(true);
 
    argparse::ArgumentParser detect_args("detect");
-   detect_args.add_description("Detect what possible methods are encoded in this PNG file.");
+   detect_args.add_description("Detect what possible methods are encoded in this PNG or ICO file.");
 
    detect_args.add_argument("filename")
       .help("The file to scan.")
@@ -1079,17 +1079,17 @@ int main(int argc, char *argv[])
       .implicit_value(true);
 
    detect_args.add_argument("-t", "--text-data")
-      .help("Check if this PNG has a 'tEXt' section payload. "
+      .help("Check if this PNG or ICO has a 'tEXt' section payload. "
             "Supply a blank string to detect all 'tEXt' payloads, or supply a keyword to detect a specific payload.")
       .default_value(std::string(""));
 
    detect_args.add_argument("-z", "--ztxt-data")
-      .help("Check if this PNG has a 'zTXt' section payload. "
+      .help("Check if this PNG or ICO has a 'zTXt' section payload. "
             "Supply a blank string to detect all 'zTXt' payloads, or supply a keyword to detect a specific payload.")
       .default_value(std::string(""));
 
    detect_args.add_argument("-s", "--stego-data")
-      .help("Check if this PNG image has a steganographic payload.");
+      .help("Check if this PNG or ICO image has a steganographic payload.");
 
    args.add_subparser(create_args);
    args.add_subparser(extract_args);
