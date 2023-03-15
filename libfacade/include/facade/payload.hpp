@@ -194,6 +194,13 @@ namespace facade
       std::vector<std::uint8_t> extract_stego_payload() const;
    };
 
+   /// @brief An icon file containing a payload.
+   /// @sa PNGPayload
+   ///
+   /// Note that in its current form, an icon file can only contain a payload if it contains a PNG entry. Attempting to turn an icon file
+   /// without a PNG entry is an error. The only payload functionality that could possibly exist for icon bitmaps beside is steganography,
+   /// which is not currently implemented for the icon bitmap format.
+   ///
    class
    EXPORT
    ICOPayload : public ico::Icon
@@ -209,14 +216,29 @@ namespace facade
       ICOPayload(const ICOPayload &other) : _index(other._index), _payload(other._payload), ico::Icon(other) {}
 
       ICOPayload &operator=(const ICOPayload &other);
+      /// @brief Syntactic sugar to access the PNG payload in the icon.
       PNGPayload *operator->(void);
+      /// @brief Syntactic sugar to access the PNG payload in the icon.
       PNGPayload &operator*(void);
 
+      /// @brief Retrieve the PNG payload in this icon file.
+      /// @throws exception::NoPNGIcon
+      ///
       PNGPayload &png_payload(void);
+      /// @brief Retrieve a const PNG payload of this icon file.
+      /// @throws exception::NoPNGIcon
+      ///
       const PNGPayload &png_payload(void) const;
-      
+
+      /// @brief Find and set the PNG payload in this icon file.
+      /// @throws exception::NoPNGIcon
+      ///
       void find_png(void);
+      /// @brief Reset the underlying PNG payload to what's currently in the icon object.
       void reset_png(void);
+      /// @brief Convert the PNG payload to a file buffer and set it in the icon's bitmap directory.
+      /// @throws exception::NoPNGIcon
+      ///
       void set_png(void);
    };
 }
