@@ -1,14 +1,20 @@
 var searchData=
 [
-  ['exception_0',['exception',['../db/de5/namespacefacade_1_1exception.html',1,'facade']]],
-  ['facade_1',['facade',['../d7/d6f/namespacefacade.html',1,'']]],
-  ['facade_2ehpp_2',['facade.hpp',['../d8/d42/facade_8hpp.html',1,'']]],
-  ['facade_3a_20a_20png_20payload_20library_20and_20tool_3',['Facade: A PNG Payload Library and Tool',['../index.html',1,'']]],
-  ['filename_4',['filename',['../d0/dae/classfacade_1_1exception_1_1_open_file_failure.html#acba2c8c6fb9f494e110046b3699ebf29',1,'facade::exception::OpenFileFailure']]],
-  ['filter_5',['filter',['../d3/dd0/classfacade_1_1png_1_1_scanline_base.html#a37027d158b0f444ba2bad1257ccce936',1,'facade::png::ScanlineBase::filter(std::optional&lt; ScanlineBase &gt; previous) const'],['../d3/dd0/classfacade_1_1png_1_1_scanline_base.html#a61790bdd9aadf6301712bb0692b776d6',1,'facade::png::ScanlineBase::filter(FilterType filter_type, std::optional&lt; ScanlineBase &gt; previous) const'],['../dd/d79/classfacade_1_1png_1_1_image.html#a21ddfd2e1ac59a3ac9eb55d8337018d1',1,'facade::png::Image::filter()']]],
-  ['filter_5fmethod_6',['filter_method',['../d5/dc7/classfacade_1_1png_1_1_header.html#a6e25396d5febeb3fb974fd009c1fdbd6',1,'facade::png::Header']]],
-  ['filter_5ftype_7',['filter_type',['../d8/df3/classfacade_1_1exception_1_1_invalid_filter_type.html#af0f6472fc8bbec518e0c199f1af41f1b',1,'facade::exception::InvalidFilterType::filter_type()'],['../d3/dd0/classfacade_1_1png_1_1_scanline_base.html#acb990d453ddfde28bdc00303ea3fae33',1,'facade::png::ScanlineBase::filter_type()'],['../d4/d10/classfacade_1_1png_1_1_scanline.html#aad870a8747a6d8221412d032d738a950',1,'facade::png::Scanline::filter_type()']]],
-  ['filtertype_8',['FilterType',['../dc/d75/namespacefacade_1_1png.html#abef45ecff984cdb8df9e7669aa452665',1,'facade::png']]],
-  ['from_5fraw_9',['from_raw',['../d3/dd0/classfacade_1_1png_1_1_scanline_base.html#a06a769929f1d39797389afff030c7126',1,'facade::png::ScanlineBase']]],
-  ['png_10',['png',['../dc/d75/namespacefacade_1_1png.html',1,'facade']]]
+  ['end_0',['End',['../db/d8e/classfacade_1_1png_1_1_end.html#a0462ca1d7ee0e9f4465ff76db59fc8b1',1,'facade::png::End::End()'],['../db/d8e/classfacade_1_1png_1_1_end.html#a90917974139bdbd2579d387cb1533158',1,'facade::png::End::End(const End &amp;other)'],['../db/d8e/classfacade_1_1png_1_1_end.html',1,'facade::png::End']]],
+  ['endian_5fswap_5f16_1',['endian_swap_16',['../d7/d6f/namespacefacade.html#aa9a0efd843ab14c274f08bf33f8850c0',1,'facade']]],
+  ['endian_5fswap_5f32_2',['endian_swap_32',['../d7/d6f/namespacefacade.html#aa60a68a7f81a0c8b2929514280c05ae8',1,'facade']]],
+  ['entries_3',['entries',['../dc/d83/structfacade_1_1ico_1_1_icon_dir.html#a8c1807e0958bf9f6a73e3204410ea578',1,'facade::ico::IconDir']]],
+  ['entry_4',['Entry',['../df/d38/classfacade_1_1ico_1_1_icon.html#a4f414a24acfadca90d3fb7d64e7f47fa',1,'facade::ico::Icon']]],
+  ['entry_5fbmp_5',['ENTRY_BMP',['../df/d38/classfacade_1_1ico_1_1_icon.html#a997214515921f60197edf4c37e993630ae7d39ef5818cb6b86dcf512cfb4b3584',1,'facade::ico::Icon']]],
+  ['entry_5fpng_6',['ENTRY_PNG',['../df/d38/classfacade_1_1ico_1_1_icon.html#a997214515921f60197edf4c37e993630af5b6c6272b95356d3935eef0c1e61969',1,'facade::ico::Icon']]],
+  ['entry_5ftype_7',['entry_type',['../df/d38/classfacade_1_1ico_1_1_icon.html#ad00bfd971e2813be495a380a67da9d56',1,'facade::ico::Icon']]],
+  ['entrytype_8',['EntryType',['../df/d38/classfacade_1_1ico_1_1_icon.html#a997214515921f60197edf4c37e993630',1,'facade::ico::Icon']]],
+  ['error_9',['error',['../da/dc8/classfacade_1_1exception_1_1_exception.html#ac3e7a5582fcfb065b5588860edee741b',1,'facade::exception::Exception']]],
+  ['exception_10',['Exception',['../da/dc8/classfacade_1_1exception_1_1_exception.html#a6c0c68ac3e38335e119402090cad8935',1,'facade::exception::Exception::Exception()'],['../da/dc8/classfacade_1_1exception_1_1_exception.html#a804e5259b8b7ebabb4adcdf80d254521',1,'facade::exception::Exception::Exception(const std::string &amp;error)'],['../da/dc8/classfacade_1_1exception_1_1_exception.html',1,'facade::exception::Exception']]],
+  ['exception_2ehpp_11',['exception.hpp',['../d7/d1e/exception_8hpp.html',1,'']]],
+  ['expected_12',['expected',['../d0/d7e/classfacade_1_1exception_1_1_bad_c_r_c.html#a396b8325068594d7588e5f1c9bb4a982',1,'facade::exception::BadCRC']]],
+  ['export_13',['EXPORT',['../d3/d60/platform_8hpp.html#a3472d8cdbb788d5f1815b3522595bc49',1,'platform.hpp']]],
+  ['extract_5fstego_5fpayload_14',['extract_stego_payload',['../d0/d17/classfacade_1_1_p_n_g_payload.html#acfafcbaa3efe261abfeef69ab8849e66',1,'facade::PNGPayload']]],
+  ['extract_5ftext_5fpayloads_15',['extract_text_payloads',['../d0/d17/classfacade_1_1_p_n_g_payload.html#a13f2af622b92750a21292869a260519c',1,'facade::PNGPayload']]],
+  ['extract_5fztext_5fpayloads_16',['extract_ztext_payloads',['../d0/d17/classfacade_1_1_p_n_g_payload.html#a145cb31b5c0ba0682647143a3c20fae6',1,'facade::PNGPayload']]]
 ];

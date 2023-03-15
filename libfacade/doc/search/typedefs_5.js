@@ -1,7 +1,11 @@
 var searchData=
 [
-  ['truecolorpixel16bit_0',['TrueColorPixel16Bit',['../dc/d75/namespacefacade_1_1png.html#a0221bc57f52d46324ea3ebb869caba63',1,'facade::png']]],
-  ['truecolorpixel8bit_1',['TrueColorPixel8Bit',['../dc/d75/namespacefacade_1_1png.html#a760cda52cbb9772365a320d68a5f9fa9',1,'facade::png']]],
-  ['truecolorscanline16bit_2',['TrueColorScanline16Bit',['../dc/d75/namespacefacade_1_1png.html#ac76d528f99a10029c627df45e4b93c66',1,'facade::png']]],
-  ['truecolorscanline8bit_3',['TrueColorScanline8Bit',['../dc/d75/namespacefacade_1_1png.html#a51143b5e0b56cedf140d43d9012fe961',1,'facade::png']]]
+  ['sample_0',['Sample',['../dd/d68/classfacade_1_1png_1_1_true_color_pixel.html#a075938fdb176acfb97d45c0833332e22',1,'facade::png::TrueColorPixel']]],
+  ['sample16bit_1',['Sample16Bit',['../dc/d75/namespacefacade_1_1png.html#afb0736badae7d6ae6fa90814971d7130',1,'facade::png']]],
+  ['sample1bit_2',['Sample1Bit',['../dc/d75/namespacefacade_1_1png.html#a5cecd01e0c461b4747a4ec94a9290464',1,'facade::png']]],
+  ['sample2bit_3',['Sample2Bit',['../dc/d75/namespacefacade_1_1png.html#a11b683879a5db9ad9096ad43c369e55e',1,'facade::png']]],
+  ['sample4bit_4',['Sample4Bit',['../dc/d75/namespacefacade_1_1png.html#ae4514dc0fd2855d92abbd8aa4aa14d8c',1,'facade::png']]],
+  ['sample8bit_5',['Sample8Bit',['../dc/d75/namespacefacade_1_1png.html#a1e81df13a935fd40339c9e2afae510f5',1,'facade::png']]],
+  ['scanlinevariant_6',['ScanlineVariant',['../dc/d75/namespacefacade_1_1png.html#a08acc91b59ac5e9100bc56130bbc3dba',1,'facade::png']]],
+  ['span_7',['Span',['../d3/dd0/classfacade_1_1png_1_1_scanline_base.html#a21bb749ae4742b715831b8e52e1d90d9',1,'facade::png::ScanlineBase']]]
 ];

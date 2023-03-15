@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['max_0',['Max',['../de/d83/classfacade_1_1png_1_1_sample.html#ab85ac108e1affaf4cd8c021402e19119',1,'facade::png::Sample::Max()'],['../dd/d68/classfacade_1_1png_1_1_true_color_pixel.html#a7da1c976b28e48c7240cbd769748e844',1,'facade::png::TrueColorPixel::Max()']]],
-  ['max_1',['max',['../d5/d2f/classfacade_1_1exception_1_1_integer_overflow.html#a74c1e433daef478fcc59983d1bed3b9c',1,'facade::exception::IntegerOverflow']]],
-  ['minimum_2',['minimum',['../d3/d26/classfacade_1_1exception_1_1_insufficient_size.html#af8d7de40732aed71b8a19e0489405ae6',1,'facade::exception::InsufficientSize']]]
+  ['length_0',['length',['../d0/d01/classfacade_1_1png_1_1_chunk_vec.html#a6f18993eecf938a64d8e6dca28d6a22e',1,'facade::png::ChunkVec::length()'],['../da/daa/classfacade_1_1png_1_1_chunk_ptr.html#a752e76c48ecf5f782ef8a45b416ba94f',1,'facade::png::ChunkPtr::length()']]],
+  ['load_1',['load',['../dd/d79/classfacade_1_1png_1_1_image.html#a183b754c660df8caed9088e9915606db',1,'facade::png::Image']]]
 ];

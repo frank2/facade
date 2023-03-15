@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['filtertype_0',['FilterType',['../dc/d75/namespacefacade_1_1png.html#abef45ecff984cdb8df9e7669aa452665',1,'facade::png']]]
+  ['entrytype_0',['EntryType',['../df/d38/classfacade_1_1ico_1_1_icon.html#a997214515921f60197edf4c37e993630',1,'facade::ico::Icon']]]
 ];

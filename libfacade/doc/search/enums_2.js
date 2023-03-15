@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pixelenum_0',['PixelEnum',['../dc/d75/namespacefacade_1_1png.html#af0b1673d4400dfc35d4e461e49e5a1d1',1,'facade::png']]]
+  ['filtertype_0',['FilterType',['../dc/d75/namespacefacade_1_1png.html#abef45ecff984cdb8df9e7669aa452665',1,'facade::png']]]
 ];

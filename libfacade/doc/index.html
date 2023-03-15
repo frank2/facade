@@ -22,7 +22,7 @@
  <tr id="projectrow">
   <td id="projectlogo"><img alt="Logo" src="facade.png"/></td>
   <td id="projectalign">
-   <div id="projectname">libfacade<span id="projectnumber">&#160;1.0</span>
+   <div id="projectname">libfacade<span id="projectnumber">&#160;1.1</span>
    </div>
    <div id="projectbrief">A library for manipulating PNG images with payloads.</div>
   </td>
@@ -102,7 +102,7 @@ $(function() {
 <div class="line">   <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
 <div class="line">   </div>
-<div class="ttc" id="aclassfacade_1_1_p_n_g_payload_html"><div class="ttname"><a href="d0/d17/classfacade_1_1_p_n_g_payload.html">facade::PNGPayload</a></div><div class="ttdoc">A PNG-based payload helper class.</div><div class="ttdef"><b>Definition:</b> payload.hpp:31</div></div>
+<div class="ttc" id="aclassfacade_1_1_p_n_g_payload_html"><div class="ttname"><a href="d0/d17/classfacade_1_1_p_n_g_payload.html">facade::PNGPayload</a></div><div class="ttdoc">A PNG-based payload helper class.</div><div class="ttdef"><b>Definition:</b> payload.hpp:32</div></div>
 <div class="ttc" id="afacade_8hpp_html"><div class="ttname"><a href="d8/d42/facade_8hpp.html">facade.hpp</a></div></div>
 <div class="ttc" id="anamespacefacade_html"><div class="ttname"><a href="d7/d6f/namespacefacade.html">facade</a></div><div class="ttdef"><b>Definition:</b> exception.hpp:14</div></div>
 </div><!-- fragment --><p>And extracting this data from a known image is just as easy: </p><div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="d8/d42/facade_8hpp.html">facade.hpp</a>&gt;</span></div>
@@ -122,7 +122,7 @@ $(function() {
 <div class="line">   assert(image.extract_text_payloads(<span class="stringliteral">&quot;tEXt payload&quot;</span>)[0] == expected_data);</div>
 <div class="line"> </div>
 <div class="line">   <span class="comment">// or the ztxt section</span></div>
-<div class="line">   assert(image.extract_ztext_payload(<span class="stringliteral">&quot;zTXt payload&quot;</span>)[0] == expected_data);</div>
+<div class="line">   assert(image.extract_ztext_payloads(<span class="stringliteral">&quot;zTXt payload&quot;</span>)[0] == expected_data);</div>
 <div class="line"> </div>
 <div class="line">   <span class="comment">// in order to get stego data, we need to load the image first, THEN extract it</span></div>
 <div class="line">   image.load();</div>

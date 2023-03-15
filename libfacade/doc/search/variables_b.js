@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['tag_0',['tag',['../d9/d59/classfacade_1_1exception_1_1_chunk_not_found.html#a205f36f8bea1991d071db17409a64e43',1,'facade::exception::ChunkNotFound']]],
-  ['trailing_5fdata_1',['trailing_data',['../dd/d79/classfacade_1_1png_1_1_image.html#a90e94015cc7e9510fdeb2a0c718de6af',1,'facade::png::Image']]]
+  ['reserved_0',['reserved',['../d5/d1f/structfacade_1_1ico_1_1_icon_dir_entry.html#a64d5d53578d62a0e338344e5436bda2b',1,'facade::ico::IconDirEntry::reserved()'],['../dc/d83/structfacade_1_1ico_1_1_icon_dir.html#adee2bb8b2bdd0da33afd28a3668f0c45',1,'facade::ico::IconDir::reserved()']]]
 ];

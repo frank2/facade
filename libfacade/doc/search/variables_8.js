@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['offset_0',['offset',['../d7/d16/classfacade_1_1exception_1_1_invalid_bit_offset.html#ad5c99a239145c2e32bc08818440fe052',1,'facade::exception::InvalidBitOffset']]]
+  ['needed_0',['needed',['../dc/d3b/classfacade_1_1exception_1_1_image_too_small.html#a7457ee58c38d819a60c17ece7baf7fbc',1,'facade::exception::ImageTooSmall']]]
 ];
